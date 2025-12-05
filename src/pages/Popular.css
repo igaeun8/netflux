@@ -1,0 +1,11 @@
+/* Popular 페이지 스타일 */
+.popular-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+}
+
+.popular-content {
+  padding-top: 80px;
+}
+

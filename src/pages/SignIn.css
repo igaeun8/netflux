@@ -1,0 +1,11 @@
+/* SignIn 페이지 스타일 */
+.signin-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+}
+
+.signin-content {
+  padding-top: 80px;
+}
+

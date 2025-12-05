@@ -1,0 +1,11 @@
+/* Search 페이지 스타일 */
+.search-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+}
+
+.search-content {
+  padding-top: 80px;
+}
+

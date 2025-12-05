@@ -1,0 +1,11 @@
+/* Wishlist 페이지 스타일 */
+.wishlist-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+}
+
+.wishlist-content {
+  padding-top: 80px;
+}
+

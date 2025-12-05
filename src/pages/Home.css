@@ -1,0 +1,11 @@
+/* Home 페이지 스타일 */
+.home-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+}
+
+.home-content {
+  padding-top: 80px; /* Header 높이만큼 여백 */
+}
+
