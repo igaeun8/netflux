@@ -1,15 +1,25 @@
 // 로그인/회원가입 페이지
-import React from 'react';
-import Header from '../components/common/Header';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/auth/AuthForm';
+import { isLoggedIn } from '../services/auth';
+import { ROUTES } from '../constants/routes';
 import './SignIn.css';
 
 const SignIn = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 이미 로그인되어 있으면 홈으로 리다이렉트
+    if (isLoggedIn()) {
+      navigate(ROUTES.HOME);
+    }
+  }, [navigate]);
+
   return (
     <div className="signin-page">
-      <Header />
       <main className="signin-content">
-        <h1>로그인/회원가입 페이지</h1>
-        {/* 여기에 로그인/회원가입 폼 컴포넌트 추가 예정 */}
+        <AuthForm />
       </main>
     </div>
   );

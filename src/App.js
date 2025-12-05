@@ -6,17 +6,46 @@ import SignIn from './pages/SignIn';
 import Popular from './pages/Popular';
 import Search from './pages/Search';
 import Wishlist from './pages/Wishlist';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path={ROUTES.HOME} element={<Home />} />
         <Route path={ROUTES.SIGNIN} element={<SignIn />} />
-        <Route path={ROUTES.POPULAR} element={<Popular />} />
-        <Route path={ROUTES.SEARCH} element={<Search />} />
-        <Route path={ROUTES.WISHLIST} element={<Wishlist />} />
+        <Route
+          path={ROUTES.HOME}
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.POPULAR}
+          element={
+            <ProtectedRoute>
+              <Popular />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.SEARCH}
+          element={
+            <ProtectedRoute>
+              <Search />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.WISHLIST}
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
