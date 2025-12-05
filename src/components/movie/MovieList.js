@@ -73,3 +73,5 @@ const MovieList = ({ title, movies, loading, error }) => {
 
 export default MovieList;
 
+
+

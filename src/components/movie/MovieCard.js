@@ -1,13 +1,16 @@
 // 영화 카드 컴포넌트
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { getPosterUrl } from '../../utils/imageUrl';
 import { toggleWishlist, isInWishlist } from '../../services/wishlist';
+import { ROUTES } from '../../constants/routes';
 import './MovieCard.css';
 
 const MovieCard = ({ movie }) => {
+  const navigate = useNavigate();
   const [isWished, setIsWished] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -21,11 +24,16 @@ const MovieCard = ({ movie }) => {
     setIsWished(!isWished);
   };
 
+  const handleCardClick = () => {
+    navigate(ROUTES.MOVIE_DETAIL.replace(':movieId', movie.id));
+  };
+
   return (
     <div 
       className="movie-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div className="movie-poster-container">
         <img 
@@ -57,4 +65,6 @@ const MovieCard = ({ movie }) => {
 };
 
 export default MovieCard;
+
+
 

@@ -4,6 +4,7 @@ export const ROUTES = {
   SIGNIN: '/signin',
   POPULAR: '/popular',
   SEARCH: '/search',
-  WISHLIST: '/wishlist'
+  WISHLIST: '/wishlist',
+  MOVIE_DETAIL: '/movie/:movieId'
 };
 
