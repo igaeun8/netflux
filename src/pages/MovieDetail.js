@@ -20,12 +20,6 @@ const MovieDetail = () => {
   const backdropUrl = getBackdropUrl(movie.backdrop_path, 'original');
   const posterUrl = getPosterUrl(movie.poster_path, 'large');
 
-  const formatRuntime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}시간 ${mins}분`;
-  };
-
   return (
     <div className="movie-detail-page">
       <Header />
@@ -58,11 +52,11 @@ const MovieDetail = () => {
               </span>
               <span className="year">
                 <FontAwesomeIcon icon={faCalendarAlt} />
-                {movie.release_date?.split('-')[0]}
+                {movie.release_date}
               </span>
               <span className="runtime">
                 <FontAwesomeIcon icon={faClock} />
-                {formatRuntime(movie.runtime)}
+                {movie.runtime}분
               </span>
             </div>
 
