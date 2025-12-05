@@ -1,11 +1,110 @@
 /* Home 페이지 스타일 */
 .home-page {
   min-height: 100vh;
-  background: #000;
+  background: #141414;
   color: #fff;
 }
 
-.home-content {
-  padding-top: 80px; /* Header 높이만큼 여백 */
+.main-banner {
+  height: 80vh;
+  background-size: cover;
+  background-position: center top;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
+.banner-content {
+  padding: 0 3rem;
+  max-width: 600px;
+  margin-top: 100px;
+}
+
+.banner-title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.banner-description {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.banner-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.banner-btn {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.banner-btn.play {
+  background: #fff;
+  color: #000;
+}
+
+.banner-btn.play:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.banner-btn.info {
+  background: rgba(109, 109, 110, 0.7);
+  color: #fff;
+}
+
+.banner-btn.info:hover {
+  background: rgba(109, 109, 110, 0.4);
+}
+
+.home-content {
+  padding-bottom: 3rem;
+  margin-top: -100px;
+  position: relative;
+  z-index: 10;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .main-banner {
+    height: 50vh;
+  }
+
+  .banner-content {
+    padding: 0 1rem;
+    margin-top: 50px;
+  }
+
+  .banner-title {
+    font-size: 2rem;
+  }
+
+  .banner-description {
+    font-size: 1rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .banner-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .home-content {
+    margin-top: 0;
+  }
+}

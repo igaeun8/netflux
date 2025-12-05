@@ -1,11 +1,128 @@
 /* Search 페이지 스타일 */
 .search-page {
   min-height: 100vh;
-  background: #000;
+  background: #141414;
   color: #fff;
 }
 
 .search-content {
-  padding-top: 80px;
+  padding: 100px 3rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
+.search-header {
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.search-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.2rem;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.9);
+  border-color: #fff;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  background: #333;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.filter-select:hover {
+  background: #444;
+}
+
+.reset-btn {
+  padding: 0.5rem 1.5rem;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #f40612;
+}
+
+/* 검색 결과 그리드 */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+}
+
+/* 결과 없음 메시지 */
+.no-results, .loading-message, .error-message {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #777;
+  margin-top: 3rem;
+}
+
+.error-message {
+  color: #e50914;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .search-content {
+    padding: 80px 1rem 2rem;
+  }
+
+  .search-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter-select, .reset-btn {
+    width: 100%;
+  }
+}
