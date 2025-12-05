@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+# Netflix Clone
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React.js를 활용한 Netflix 클론 프로젝트입니다. TMDB API를 사용하여 영화 정보를 표시하고, Local Storage를 활용한 사용자 데이터 관리 및 반응형 웹 디자인을 구현합니다.
 
-## Available Scripts
+## 🚀 기술 스택
 
-In the project directory, you can run:
+- **Frontend Framework**: React.js 19.2.1
+- **Routing**: React Router DOM 6.21.3
+- **HTTP Client**: Axios 1.6.5
+- **Icons**: Font Awesome 6.5.1
+- **Build Tool**: React Scripts 5.0.1
 
-### `npm start`
+## 📁 프로젝트 구조
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+src/
+├── assets/              # 이미지, 폰트 등 정적 파일
+├── components/          # 재사용 가능한 컴포넌트
+│   ├── common/         # 공통 컴포넌트 (Header 등)
+│   └── movie/          # 영화 관련 컴포넌트
+├── constants/          # 상수 정의
+│   ├── api.js         # API 관련 상수
+│   ├── routes.js      # 라우트 경로
+│   └── storage.js     # Local Storage 키
+├── context/           # React Context (상태 관리)
+├── hooks/             # Custom Hooks
+├── pages/             # 페이지 컴포넌트
+│   ├── Home.js        # 홈 페이지
+│   ├── SignIn.js      # 로그인/회원가입
+│   ├── Popular.js     # 대세 콘텐츠
+│   ├── Search.js      # 찾아보기
+│   └── Wishlist.js    # 찜한 리스트
+├── services/          # API 서비스 및 비즈니스 로직
+│   ├── api.js         # TMDB API 클라이언트
+│   ├── auth.js        # 인증 관련 서비스
+│   └── wishlist.js    # 위시리스트 관리
+├── utils/             # 유틸리티 함수
+│   ├── imageUrl.js    # 이미지 URL 생성
+│   └── validation.js  # 유효성 검사
+├── App.js             # 메인 App 컴포넌트
+└── index.js           # 진입점
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ 설치 및 실행
 
-### `npm test`
+### 필수 요구사항
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js (v14 이상)
+- npm 또는 yarn
+- TMDB API 키
 
-### `npm run build`
+### 설치 방법
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. 저장소 클론
+```bash
+git clone <repository-url>
+cd netflix_clone
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. 의존성 설치
+```bash
+npm install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. 개발 서버 실행
+```bash
+npm start
+```
 
-### `npm run eject`
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 프로덕션 빌드
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+빌드된 파일은 `build` 폴더에 생성됩니다.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📝 주요 기능
 
-## Learn More
+- ✅ Single Page Application (SPA) 구현
+- ✅ React Router를 통한 라우팅
+- ✅ TMDB API를 활용한 영화 데이터 표시
+- ✅ Local Storage를 통한 사용자 데이터 관리
+- ✅ 로그인/회원가입 기능
+- ✅ 위시리스트 관리
+- ✅ 영화 검색 및 필터링
+- ✅ 반응형 웹 디자인
+- ✅ CSS 애니메이션 및 전환 효과
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🌿 Git Flow 브랜치 전략
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+이 프로젝트는 Git Flow 전략을 따릅니다:
 
-### Code Splitting
+- `main`: 제품 출시 브랜치
+- `develop`: 개발 브랜치
+- `feature/*`: 기능 개발 브랜치
+- `release/*`: 출시 준비 브랜치 (선택)
+- `hotfix/*`: 긴급 수정 브랜치 (선택)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 📚 개발 가이드
 
-### Analyzing the Bundle Size
+상세한 개발 가이드는 [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)를 참고하세요.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🎯 구현 상태
 
-### Making a Progressive Web App
+- [ ] 로그인/회원가입 페이지
+- [ ] 홈 페이지
+- [ ] 대세 콘텐츠 페이지
+- [ ] 찾아보기 페이지
+- [ ] 찜한 리스트 페이지
+- [ ] 배포 자동화
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 📄 라이선스
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+이 프로젝트는 교육 목적으로 제작되었습니다.
