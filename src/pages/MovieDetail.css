@@ -86,6 +86,26 @@
   margin-bottom: 1.5rem;
 }
 
+.trailer-btn {
+  background-color: #fff;
+  color: #000;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.trailer-btn:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
 .meta-info {
   display: flex;
   gap: 1.5rem;
@@ -172,6 +192,44 @@
   font-weight: 500;
 }
 
+/* 예고편 모달 */
+.trailer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trailer-content {
+  position: relative;
+  width: 80%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.close-trailer {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.close-trailer:hover {
+  color: #e50914;
+}
+
 /* 로딩 및 에러 */
 .detail-loading, .detail-error {
   min-height: 100vh;
@@ -212,6 +270,11 @@
   .tagline {
     text-align: center;
   }
+  
+  .trailer-btn {
+     width: 100%;
+     justify-content: center;
+  }
 
   .meta-info {
     justify-content: center;
@@ -223,5 +286,9 @@
   
   .companies {
     justify-content: center;
+  }
+  
+  .trailer-content {
+    width: 95%;
   }
 }

@@ -108,6 +108,11 @@ export const movieApi = {
     return apiClient.get(`${TMDB_ENDPOINTS.DETAIL}/${movieId}`);
   },
 
+  // 영화 비디오(예고편 등)
+  getMovieVideos: (movieId) => {
+    return apiClient.get(`${TMDB_ENDPOINTS.DETAIL}/${movieId}/videos`);
+  },
+
   // 장르별 영화
   discoverMovies: (params = {}) => {
     return apiClient.get(TMDB_ENDPOINTS.DISCOVER, {

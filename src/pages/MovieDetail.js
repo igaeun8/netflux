@@ -1,8 +1,8 @@
 // 영화 상세 정보 페이지
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faStar, faCalendarAlt, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faStar, faCalendarAlt, faClock, faPlay } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/common/Header';
 import { useMovieDetail } from '../hooks/useMovies';
 import { getBackdropUrl, getPosterUrl } from '../utils/imageUrl';
@@ -12,6 +12,19 @@ const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { movie, loading, error } = useMovieDetail(id);
+  const [showTrailer, setShowTrailer] = useState(false);
+  const [trailerKey, setTrailerKey] = useState(null);
+
+  useEffect(() => {
+    if (movie && movie.videos) {
+      const trailer = movie.videos.find(
+        (video) => video.site === 'YouTube' && (video.type === 'Trailer' || video.type === 'Teaser')
+      );
+      if (trailer) {
+        setTrailerKey(trailer.key);
+      }
+    }
+  }, [movie]);
 
   if (loading) return <div className="detail-loading">로딩 중...</div>;
   if (error) return <div className="detail-error">{error}</div>;
@@ -44,6 +57,12 @@ const MovieDetail = () => {
           <div className="info-section">
             <h1 className="detail-title">{movie.title}</h1>
             {movie.tagline && <p className="tagline">"{movie.tagline}"</p>}
+
+            {trailerKey && (
+              <button className="trailer-btn" onClick={() => setShowTrailer(true)}>
+                <FontAwesomeIcon icon={faPlay} /> 예고편 보기
+              </button>
+            )}
 
             <div className="meta-info">
               <span className="rating">
@@ -96,6 +115,31 @@ const MovieDetail = () => {
           </div>
         </div>
       </main>
+
+      {showTrailer && trailerKey && (
+        <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
+          <div className="trailer-content">
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+            <button 
+              className="close-trailer" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTrailer(false);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
