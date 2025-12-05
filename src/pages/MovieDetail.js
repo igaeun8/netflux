@@ -14,6 +14,7 @@ const MovieDetail = () => {
   const { movie, loading, error } = useMovieDetail(id);
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerKey, setTrailerKey] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (movie && movie.videos) {
@@ -85,33 +86,55 @@ const MovieDetail = () => {
               ))}
             </div>
 
-            <div className="overview-section">
-              <h3>개요</h3>
-              <p className="overview">{movie.overview || "상세 줄거리가 없습니다."}</p>
+            <div className="detail-tabs">
+              <button 
+                className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                주요 정보
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'production' ? 'active' : ''}`}
+                onClick={() => setActiveTab('production')}
+              >
+                제작 정보
+              </button>
             </div>
 
-            {/* 제작사 정보 */}
-            {movie.production_companies && movie.production_companies.length > 0 && (
-              <div className="production-section">
-                <h3>제작사</h3>
-                <div className="companies">
-                  {movie.production_companies.map(company => (
-                    <div key={company.id} className="company-item">
-                      {company.logo_path ? (
-                        <img 
-                          src={`https://image.tmdb.org/t/p/w200${company.logo_path}`} 
-                          alt={company.name} 
-                          className="company-logo"
-                          title={company.name}
-                        />
-                      ) : (
-                        <span className="company-name">{company.name}</span>
-                      )}
-                    </div>
-                  ))}
+            <div className="tab-content">
+              {activeTab === 'overview' && (
+                <div className="overview-section fade-in">
+                  <h3>줄거리</h3>
+                  <p className="overview">{movie.overview || "상세 줄거리가 없습니다."}</p>
                 </div>
-              </div>
-            )}
+              )}
+
+              {activeTab === 'production' && (
+                <div className="production-section fade-in">
+                  <h3>제작사</h3>
+                  {movie.production_companies && movie.production_companies.length > 0 ? (
+                    <div className="companies">
+                      {movie.production_companies.map(company => (
+                        <div key={company.id} className="company-item">
+                          {company.logo_path ? (
+                            <img 
+                              src={`https://image.tmdb.org/t/p/w200${company.logo_path}`} 
+                              alt={company.name} 
+                              className="company-logo"
+                              title={company.name}
+                            />
+                          ) : (
+                            <span className="company-name">{company.name}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">제작사 정보가 없습니다.</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
