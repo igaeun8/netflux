@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTh, faList, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
-import { usePopularMovies } from '../../hooks/useMovies';
 import { movieApi } from '../../services/api';
 import './Popular.css';
 

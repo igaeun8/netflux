@@ -12,11 +12,17 @@ import { ModalProvider } from './context/ModalContext';
 import './App.css';
 
 function App() {
-  // GitHub Pages를 위한 basename 설정
-  const basename = process.env.PUBLIC_URL || '/netflix_clone2';
+  // GitHub Pages를 위한 basename 설정 (로컬에서는 빈 문자열)
+  const basename = process.env.PUBLIC_URL || '';
   
   return (
-    <Router basename={basename}>
+    <Router 
+      basename={basename}
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <ModalProvider>
         <Routes>
           <Route path={ROUTES.SIGNIN} element={<SignIn />} />

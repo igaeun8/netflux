@@ -1,35 +1,39 @@
-/* 로그인/회원가입 폼 스타일 */
+/* 로그인/회원가입 폼 스타일 - Netflix 스타일 */
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000000;
   position: relative;
   overflow: hidden;
 }
 
-/* Toast 메시지 */
+/* Toast 메시지 - Netflix 스타일 */
 .toast {
   position: fixed;
   top: 100px;
   right: 20px;
   padding: 1rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 4px;
   color: white;
   font-weight: 500;
   z-index: 10000;
   animation: slideInRight 0.3s ease-out;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border-left: 4px solid;
+  backdrop-filter: blur(10px);
 }
 
 .toast-success {
-  background: #10b981;
+  background: rgba(20, 20, 20, 0.95);
+  border-left-color: #10b981;
 }
 
 .toast-error {
-  background: #ef4444;
+  background: rgba(20, 20, 20, 0.95);
+  border-left-color: #E50914;
 }
 
 @keyframes slideInRight {
@@ -51,14 +55,15 @@
   min-height: 600px;
 }
 
-/* 폼 공통 스타일 */
+/* 폼 공통 스타일 - Netflix 스타일 */
 .auth-form {
   position: absolute;
   width: 100%;
   padding: 3rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
   transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   opacity: 0;
@@ -74,7 +79,7 @@
 
 .auth-form h2 {
   margin-bottom: 2rem;
-  color: #1f2937;
+  color: #ffffff;
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
@@ -106,7 +111,7 @@
   pointer-events: none;
 }
 
-/* 폼 그룹 */
+/* 폼 그룹 - Netflix 스타일 */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -114,7 +119,7 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: #b3b3b3;
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -122,30 +127,38 @@
 .form-group input[type="email"],
 .form-group input[type="password"] {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 1rem;
+  border: none;
+  border-radius: 4px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: white;
+  background: #333333;
+  color: #ffffff;
   box-sizing: border-box;
+  border-bottom: 2px solid transparent;
 }
 
 .form-group input[type="email"]:focus,
 .form-group input[type="password"]:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #404040;
+  border-bottom-color: #E50914;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.2);
+}
+
+.form-group input[type="email"]::placeholder,
+.form-group input[type="password"]::placeholder {
+  color: #8c8c8c;
 }
 
 .form-group small {
   display: block;
-  margin-top: 0.25rem;
-  color: #6b7280;
+  margin-top: 0.5rem;
+  color: #8c8c8c;
   font-size: 0.75rem;
 }
 
-/* 체크박스 그룹 */
+/* 체크박스 그룹 - Netflix 스타일 */
 .checkbox-group {
   display: flex;
   align-items: center;
@@ -163,22 +176,22 @@
   height: 18px;
   margin-right: 0.5rem;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: #E50914;
 }
 
 .checkbox-group span {
-  color: #374151;
+  color: #b3b3b3;
   font-size: 0.9rem;
 }
 
-/* 에러 메시지 */
+/* 에러 메시지 - Netflix 스타일 */
 .error-message {
   margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #dc2626;
+  padding: 0.75rem 1rem;
+  background: rgba(229, 9, 20, 0.1);
+  border-left: 3px solid #E50914;
+  border-radius: 4px;
+  color: #ff6b6b;
   font-size: 0.875rem;
   animation: shake 0.3s ease-in-out;
 }
@@ -189,53 +202,58 @@
   75% { transform: translateX(10px); }
 }
 
-/* 버튼 */
+/* 버튼 - Netflix 스타일 */
 .auth-button {
   width: 100%;
   padding: 1rem;
   margin-top: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+  letter-spacing: 0.5px;
 }
 
 .auth-button:hover {
+  background: #f40612;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.5);
 }
 
 .auth-button:active {
+  background: #b8070f;
   transform: translateY(0);
 }
 
-/* 모드 전환 링크 */
+/* 모드 전환 링크 - Netflix 스타일 */
 .toggle-mode {
   margin-top: 1.5rem;
   text-align: center;
-  color: #6b7280;
+  color: #b3b3b3;
   font-size: 0.9rem;
 }
 
 .link-button {
   background: none;
   border: none;
-  color: #667eea;
+  color: #ffffff;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
   padding: 0;
   font-size: inherit;
   transition: color 0.3s ease;
+  border-bottom: 1px solid transparent;
 }
 
 .link-button:hover {
-  color: #764ba2;
+  color: #E50914;
+  border-bottom-color: #E50914;
 }
 
 /* 반응형 디자인 */
@@ -272,4 +290,3 @@
     transform: translateX(0) rotateY(0deg) scale(1);
   }
 }
-
