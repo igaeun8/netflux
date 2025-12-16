@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { ROUTES } from '../../constants/routes';
 import { getCurrentUser, logout } from '../../services/auth';
 import './Header.css';
@@ -13,7 +13,9 @@ const Header = () => {
   const currentUser = getCurrentUser();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // 스크롤 감지
   useEffect(() => {
@@ -32,16 +34,32 @@ const Header = () => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && 
+          !event.target.closest('.mobile-menu-toggle')) {
+        setIsMobileMenuOpen(false);
+      }
     };
 
-    if (showUserMenu) {
+    if (showUserMenu || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showUserMenu]);
+  }, [showUserMenu, isMobileMenuOpen]);
+
+  // 모바일 메뉴 열림/닫힘 시 body 스크롤 제어
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -53,6 +71,14 @@ const Header = () => {
     setShowUserMenu(!showUserMenu);
   };
 
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleNavClick = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   const isActive = (path) => {
     return location.pathname === path;
   };
@@ -60,11 +86,12 @@ const Header = () => {
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="header-content">
-        <Link to={ROUTES.HOME} className="logo">
+        <Link to={ROUTES.HOME} className="logo" onClick={handleNavClick}>
           NETFLUX
         </Link>
         
-        <nav className="nav-menu">
+        {/* 데스크톱 네비게이션 */}
+        <nav className="nav-menu desktop-nav">
           <Link 
             to={ROUTES.HOME} 
             className={isActive(ROUTES.HOME) ? 'active' : ''}
@@ -92,6 +119,15 @@ const Header = () => {
         </nav>
 
         <div className="header-right">
+          {/* 모바일 메뉴 토글 버튼 */}
+          <button 
+            className="mobile-menu-toggle"
+            onClick={handleMobileMenuToggle}
+            aria-label="메뉴"
+          >
+            <FontAwesomeIcon icon={isMobileMenuOpen ? faTimes : faBars} />
+          </button>
+
           {currentUser ? (
             <div className="user-menu-container" ref={userMenuRef}>
               <button 
@@ -123,6 +159,41 @@ const Header = () => {
           )}
         </div>
       </div>
+
+      {/* 모바일 네비게이션 메뉴 */}
+      <nav 
+        ref={mobileMenuRef}
+        className={`mobile-nav ${isMobileMenuOpen ? 'open' : ''}`}
+      >
+        <Link 
+          to={ROUTES.HOME} 
+          className={isActive(ROUTES.HOME) ? 'active' : ''}
+          onClick={handleNavClick}
+        >
+          홈
+        </Link>
+        <Link 
+          to={ROUTES.POPULAR} 
+          className={isActive(ROUTES.POPULAR) ? 'active' : ''}
+          onClick={handleNavClick}
+        >
+          대세 콘텐츠
+        </Link>
+        <Link 
+          to={ROUTES.SEARCH} 
+          className={isActive(ROUTES.SEARCH) ? 'active' : ''}
+          onClick={handleNavClick}
+        >
+          찾아보기
+        </Link>
+        <Link 
+          to={ROUTES.WISHLIST} 
+          className={isActive(ROUTES.WISHLIST) ? 'active' : ''}
+          onClick={handleNavClick}
+        >
+          내가 찜한 리스트
+        </Link>
+      </nav>
     </header>
   );
 };

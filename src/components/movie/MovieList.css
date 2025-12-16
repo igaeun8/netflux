@@ -75,7 +75,6 @@
   border-bottom-left-radius: 4px;
 }
 
-.movie-list-loading,
 .movie-list-error {
   padding: 2rem;
   text-align: center;
@@ -83,9 +82,16 @@
 }
 
 /* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .movie-list-container {
+    padding: 0 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .movie-list-container {
     padding: 0 1rem;
+    margin-bottom: 2rem;
   }
 
   .scroll-btn {
@@ -94,6 +100,30 @@
 
   .movie-list-title {
     font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .movie-list {
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .movie-list-container {
+    padding: 0 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .movie-list-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .movie-list {
+    gap: 0.5rem;
+    padding: 0.5rem 0;
   }
 }
 

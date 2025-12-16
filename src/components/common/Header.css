@@ -172,18 +172,83 @@
   background: #f40612;
 }
 
+/* 모바일 메뉴 토글 버튼 */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+  z-index: 1002;
+}
+
+.mobile-menu-toggle:hover {
+  color: #e50914;
+}
+
+/* 모바일 네비게이션 */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(20, 20, 20, 0.98);
+  backdrop-filter: blur(10px);
+  z-index: 1001;
+  padding: 80px 2rem 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+
+.mobile-nav.open {
+  transform: translateX(0);
+}
+
+.mobile-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.mobile-nav a:hover,
+.mobile-nav a.active {
+  background: rgba(229, 9, 20, 0.2);
+  color: #e50914;
+  padding-left: 1.5rem;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .header {
     padding: 0.75rem 1rem;
   }
 
-  .nav-menu {
-    gap: 1rem;
+  /* 데스크톱 네비게이션 숨기기 */
+  .desktop-nav {
+    display: none;
   }
 
-  .nav-menu a {
-    font-size: 0.85rem;
+  /* 모바일 메뉴 토글 버튼 표시 */
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  /* 모바일 네비게이션 표시 */
+  .mobile-nav {
+    display: flex;
   }
 
   .logo {
@@ -196,6 +261,67 @@
 
   .user-menu-dropdown {
     min-width: 120px;
+  }
+
+  .signin-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .mobile-menu-toggle {
+    font-size: 1.3rem;
+    padding: 0.4rem;
+  }
+
+  .mobile-nav {
+    padding: 70px 1.5rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .mobile-nav a {
+    font-size: 1.1rem;
+    padding: 0.875rem;
+  }
+
+  .user-icon {
+    font-size: 1.3rem;
+  }
+
+  .user-menu-dropdown {
+    min-width: 100px;
+    right: -10px;
+  }
+
+  .user-menu-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .signin-btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* 태블릿 (768px ~ 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .nav-menu {
+    gap: 1.5rem;
+  }
+
+  .nav-menu a {
+    font-size: 0.9rem;
   }
 }
 

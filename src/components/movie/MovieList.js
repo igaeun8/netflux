@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import MovieCard from './MovieCard';
+import MovieCardSkeleton from './MovieCardSkeleton';
 import './MovieList.css';
 
 const MovieList = ({ title, movies, loading, error }) => {
@@ -28,9 +29,8 @@ const MovieList = ({ title, movies, loading, error }) => {
     }
   };
 
-  if (loading) return <div className="movie-list-loading">로딩 중...</div>;
   if (error) return <div className="movie-list-error">{error}</div>;
-  if (!movies || movies.length === 0) return null;
+  if (!loading && (!movies || movies.length === 0)) return null;
 
   return (
     <div className="movie-list-container">
@@ -52,9 +52,17 @@ const MovieList = ({ title, movies, loading, error }) => {
           ref={listRef}
           onScroll={handleScroll}
         >
-          {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
+          {loading ? (
+            // 로딩 중일 때 스켈레톤 표시
+            Array.from({ length: 10 }).map((_, index) => (
+              <MovieCardSkeleton key={`skeleton-${index}`} />
+            ))
+          ) : (
+            // 로딩 완료 후 영화 카드 표시
+            movies.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))
+          )}
         </div>
         
         {isRightVisible && (

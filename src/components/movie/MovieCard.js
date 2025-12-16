@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as faHeartSolid, faStar, faInfoCircle, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartSolid, faStar, faInfoCircle, faShare, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { getPosterUrl } from '../../utils/imageUrl';
 import { toggleWishlist, isInWishlist } from '../../services/wishlist';
@@ -65,12 +65,20 @@ const MovieCard = ({ movie }) => {
 
   return (
     <div 
-      className="movie-card"
+      className={`movie-card ${isWished ? 'recommended' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
       <div className="movie-poster-container">
+        {/* 추천된 영화 배지 */}
+        {isWished && (
+          <div className="recommended-badge" title="추천된 영화">
+            <FontAwesomeIcon icon={faCheckCircle} />
+            <span>추천</span>
+          </div>
+        )}
+        
         <img 
           src={getPosterUrl(movie.poster_path, 'medium')} 
           alt={movie.title} 

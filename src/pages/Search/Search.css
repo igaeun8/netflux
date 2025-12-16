@@ -879,3 +879,48 @@
     font-size: 1rem;
   }
 }
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .search-content {
+    padding: 70px 0.75rem 1.5rem;
+  }
+
+  .search-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+  }
+
+  .search-icon {
+    left: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .movie-grid,
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .genre-categories {
+    gap: 0.5rem;
+  }
+
+  .genre-category-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .genre-category-btn svg {
+    font-size: 0.9rem;
+  }
+
+  .filters-panel {
+    top: 70px;
+    padding: 1rem 0.75rem;
+  }
+}

@@ -1,6 +1,8 @@
-# Netflix Clone
+# [초급프로젝트] 과제 2) GPT와 함께 Front-End Demo Site 개발 
+본 프로젝트는 Netflix와 유사한 Front-End 데모 사이트입니다.
+React.js 기반의 Netflix 클론 프로젝트로, TMDB API를 활용하여 영화 정보를 동적으로 표시하며, Local Storage를 이용한 사용자 데이터 관리 기능을 구현합니다. 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2bbd19e1-2a13-4498-97c2-39aaae2ae4f1" />
 
-React.js를 활용한 Netflix 클론 프로젝트입니다. TMDB API를 사용하여 영화 정보를 표시하고, Local Storage를 활용한 사용자 데이터 관리 및 반응형 웹 디자인을 구현합니다.
 
 ## 🚀 기술 스택
 
@@ -79,15 +81,15 @@ npm run build
 
 ## 📝 주요 기능
 
-- ✅ Single Page Application (SPA) 구현
-- ✅ React Router를 통한 라우팅
-- ✅ TMDB API를 활용한 영화 데이터 표시
-- ✅ Local Storage를 통한 사용자 데이터 관리
-- ✅ 로그인/회원가입 기능
-- ✅ 위시리스트 관리
-- ✅ 영화 검색 및 필터링
-- ✅ 반응형 웹 디자인
-- ✅ CSS 애니메이션 및 전환 효과
+-  Single Page Application (SPA) 구현
+-  React Router를 통한 라우팅
+-  TMDB API를 활용한 영화 데이터 표시
+-  Local Storage를 통한 사용자 데이터 관리
+-  로그인/회원가입 기능
+-  위시리스트 관리
+-  영화 검색 및 필터링
+-  반응형 웹 디자인
+-  CSS 애니메이션 및 전환 효과
 
 ## 🌿 Git Flow 브랜치 전략
 
@@ -102,16 +104,3 @@ npm run build
 ## 📚 개발 가이드
 
 상세한 개발 가이드는 [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)를 참고하세요.
-
-## 🎯 구현 상태
-
-- [ ] 로그인/회원가입 페이지
-- [ ] 홈 페이지
-- [ ] 대세 콘텐츠 페이지
-- [ ] 찾아보기 페이지
-- [ ] 찜한 리스트 페이지
-- [ ] 배포 자동화
-
-## 📄 라이선스
-
-이 프로젝트는 교육 목적으로 제작되었습니다.
