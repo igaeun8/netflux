@@ -1,5 +1,5 @@
 // 검색 페이지
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -23,7 +23,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
-import { usePopularMovies, useGenres } from '../../hooks/useMovies';
+import { useGenres } from '../../hooks/useMovies';
 import { movieApi } from '../../services/api';
 import { STORAGE_KEYS } from '../../constants/storage';
 import './Search.css';
@@ -128,7 +128,6 @@ const Search = () => {
 
   // 장르 목록 가져오기
   const { genres } = useGenres();
-  const { movies: popularMovies } = usePopularMovies();
 
   // 검색어 변경 핸들러
   const handleSearchChange = (e) => {
@@ -242,7 +241,7 @@ const Search = () => {
       
       let response;
       
-      if (query) {
+    if (query) {
         // 검색어가 있으면 검색 API 사용
         response = await movieApi.searchMovies(query, pageNum);
       } else if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
@@ -254,7 +253,7 @@ const Search = () => {
         if (appliedYear) params.primary_release_year = parseInt(appliedYear);
         
         response = await movieApi.discoverMovies(params);
-      } else {
+    } else {
         // 기본값: 인기 영화
         response = await movieApi.getPopular(pageNum);
       }
@@ -279,7 +278,7 @@ const Search = () => {
   useEffect(() => {
     setPage(1);
     loadMovies(1, true);
-  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear, loadMovies]);
 
   // 스크롤 이벤트 (Top 버튼 표시)
   useEffect(() => {
@@ -591,9 +590,9 @@ const Search = () => {
                 <div className="table-view-container">
                   <div className="movie-grid table-view">
                     {allMovies.map(movie => (
-                      <MovieCard key={movie.id} movie={movie} />
-                    ))}
-                  </div>
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
                   
                   <div className="pagination">
                     <button 
