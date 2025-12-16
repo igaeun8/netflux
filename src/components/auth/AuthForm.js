@@ -1,10 +1,11 @@
 // 로그인/회원가입 폼 컴포넌트
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { tryLogin, tryRegister, setKeepLogin } from '../../services/auth';
+import { tryLogin, tryRegister, setKeepLogin, getKeepLogin, getCurrentUser } from '../../services/auth';
 import { isValidEmail, isValidPassword, isPasswordMatch } from '../../utils/validation';
 import { ROUTES } from '../../constants/routes';
 import { setApiKey } from '../../services/api';
+import { STORAGE_KEYS } from '../../constants/storage';
 import './AuthForm.css';
 
 const AuthForm = () => {
@@ -21,12 +22,31 @@ const AuthForm = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreeTerms, setAgreeTerms] = useState(false);
   const [registerError, setRegisterError] = useState('');
+  
+  // 약관 동의 상태
+  const [agreeAll, setAgreeAll] = useState(false);
+  const [agreeService, setAgreeService] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
   
   // Toast 메시지 상태
   const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
+  const [toastType, setToastType] = useState('success');
+
+  // Remember me 자동 로그인 체크
+  useEffect(() => {
+    const keepLogin = getKeepLogin();
+    const savedUser = getCurrentUser();
+    const savedApiKey = localStorage.getItem(STORAGE_KEYS.TMDB_API_KEY);
+    
+    if (keepLogin && savedUser && savedApiKey) {
+      setApiKey(savedApiKey);
+      showToast('자동 로그인되었습니다!', 'success');
+      setTimeout(() => {
+        navigate(ROUTES.HOME);
+      }, 1000);
+    }
+  }, [navigate]);
 
   // Toast 메시지 표시
   const showToast = (message, type = 'success') => {
@@ -42,7 +62,23 @@ const AuthForm = () => {
     setIsLoginMode(!isLoginMode);
     setLoginError('');
     setRegisterError('');
+    setAgreeAll(false);
+    setAgreeService(false);
+    setAgreePrivacy(false);
   };
+
+  // 전체 동의하기
+  const handleAgreeAll = (checked) => {
+    setAgreeAll(checked);
+    setAgreeService(checked);
+    setAgreePrivacy(checked);
+  };
+
+  // 개별 약관 동의
+  useEffect(() => {
+    const allChecked = agreeService && agreePrivacy;
+    setAgreeAll(allChecked);
+  }, [agreeService, agreePrivacy]);
 
   // 로그인 처리
   const handleLogin = async (e) => {
@@ -64,23 +100,16 @@ const AuthForm = () => {
       loginEmail,
       loginPassword,
       (user) => {
-        // 로그인 성공
         if (rememberMe) {
           setKeepLogin(true);
         }
-        
-        // API 키 설정 (비밀번호가 API 키)
         setApiKey(loginPassword);
-        
         showToast('로그인에 성공했습니다!', 'success');
-        
-        // 홈으로 이동
         setTimeout(() => {
           navigate(ROUTES.HOME);
         }, 1000);
       },
       (errorMessage) => {
-        // 로그인 실패
         setLoginError(errorMessage);
         showToast(errorMessage, 'error');
       },
@@ -114,34 +143,29 @@ const AuthForm = () => {
       return;
     }
 
-    if (!agreeTerms) {
-      setRegisterError('약관에 동의해주세요.');
+    if (!agreeService || !agreePrivacy) {
+      setRegisterError('모든 필수 약관에 동의해주세요.');
       return;
     }
 
-    // 회원가입 시도 (비밀번호는 TMDB API 키)
     tryRegister(
       registerEmail,
-      registerPassword, // API 키를 비밀번호로 저장
+      registerPassword,
       (user) => {
-        // 회원가입 성공
         showToast('회원가입에 성공했습니다!', 'success');
-        
-        // API 키 설정
         setApiKey(registerPassword);
-        
-        // 로그인 모드로 전환
         setTimeout(() => {
           setIsLoginMode(true);
           setLoginEmail(registerEmail);
           setRegisterEmail('');
           setRegisterPassword('');
           setConfirmPassword('');
-          setAgreeTerms(false);
+          setAgreeAll(false);
+          setAgreeService(false);
+          setAgreePrivacy(false);
         }, 1500);
       },
       (errorMessage) => {
-        // 회원가입 실패
         setRegisterError(errorMessage);
         showToast(errorMessage, 'error');
       }
@@ -152,18 +176,23 @@ const AuthForm = () => {
     <div className="auth-container">
       {/* Toast 메시지 */}
       {toastMessage && (
-        <div className={`toast toast-${toastType}`}>
-          {toastMessage}
+        <div className={`toast toast-${toastType}`} role="alert">
+          <span className="toast-icon">
+            {toastType === 'success' ? '✓' : '✕'}
+          </span>
+          <span className="toast-message">{toastMessage}</span>
         </div>
       )}
 
       <div className={`auth-form-wrapper ${isLoginMode ? 'login-mode' : 'register-mode'}`}>
         {/* 로그인 폼 */}
         <form className={`auth-form login-form ${isLoginMode ? 'active' : ''}`} onSubmit={handleLogin}>
+          <div className="auth-logo">
+            <span className="logo-text">NETFLUX</span>
+          </div>
           <h2>로그인</h2>
           
           <div className="form-group">
-            <label htmlFor="loginEmail">이메일</label>
             <input
               type="email"
               id="loginEmail"
@@ -175,7 +204,6 @@ const AuthForm = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="loginPassword">비밀번호 (TMDB API 키)</label>
             <input
               type="password"
               id="loginPassword"
@@ -206,17 +234,19 @@ const AuthForm = () => {
           <p className="toggle-mode">
             계정이 없으신가요?{' '}
             <button type="button" onClick={toggleMode} className="link-button">
-              회원가입
+              지금 가입하기
             </button>
           </p>
         </form>
 
         {/* 회원가입 폼 */}
         <form className={`auth-form register-form ${!isLoginMode ? 'active' : ''}`} onSubmit={handleRegister}>
+          <div className="auth-logo">
+            <span className="logo-text">NETFLUX</span>
+          </div>
           <h2>회원가입</h2>
           
           <div className="form-group">
-            <label htmlFor="registerEmail">이메일</label>
             <input
               type="email"
               id="registerEmail"
@@ -228,7 +258,6 @@ const AuthForm = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="registerPassword">비밀번호 (TMDB API 키)</label>
             <input
               type="password"
               id="registerPassword"
@@ -237,31 +266,68 @@ const AuthForm = () => {
               placeholder="TMDB API 키를 입력하세요"
               required
             />
-            <small>TMDB에서 발급받은 API 키를 입력하세요</small>
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">비밀번호 확인</label>
             <input
               type="password"
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="비밀번호를 다시 입력하세요"
+              placeholder="TMDB API 키를 다시 입력하세요"
               required
             />
           </div>
 
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
-                required
-              />
-              <span>약관에 동의합니다 (필수)</span>
-            </label>
+          {/* 약관 동의 섹션 */}
+          <div className="terms-section">
+            <h3 className="terms-title">약관 동의</h3>
+            
+            {/* 전체 동의하기 */}
+            <div className="terms-item terms-item-all">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={agreeAll}
+                  onChange={(e) => handleAgreeAll(e.target.checked)}
+                />
+                <span className="terms-label">전체 동의하기</span>
+              </label>
+            </div>
+            
+            <div className="terms-divider"></div>
+            
+            {/* 개별 약관 */}
+            <div className="terms-list">
+              <div className="terms-item">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={agreeService}
+                    onChange={(e) => setAgreeService(e.target.checked)}
+                    required
+                  />
+                  <span className="terms-label">
+                    이용약관 동의 <span className="terms-required">(필수)</span>
+                  </span>
+                </label>
+              </div>
+              
+              <div className="terms-item">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={agreePrivacy}
+                    onChange={(e) => setAgreePrivacy(e.target.checked)}
+                    required
+                  />
+                  <span className="terms-label">
+                    개인정보 처리방침 동의 <span className="terms-required">(필수)</span>
+                  </span>
+                </label>
+              </div>
+              
+            </div>
           </div>
 
           {registerError && <div className="error-message">{registerError}</div>}
@@ -273,7 +339,7 @@ const AuthForm = () => {
           <p className="toggle-mode">
             이미 계정이 있으신가요?{' '}
             <button type="button" onClick={toggleMode} className="link-button">
-              로그인
+              로그인 하기
             </button>
           </p>
         </form>
