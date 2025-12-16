@@ -1,7 +1,7 @@
 // 대세 콘텐츠 페이지
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTh, faList, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { faStream, faList, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
 import { movieApi } from '../../services/api';
@@ -112,7 +112,7 @@ const Popular = () => {
               onClick={() => handleViewModeChange('infinite')}
               title="무한 스크롤"
             >
-              <FontAwesomeIcon icon={faTh} /> Infinite
+              <FontAwesomeIcon icon={faStream} /> Infinite
             </button>
           </div>
         </div>

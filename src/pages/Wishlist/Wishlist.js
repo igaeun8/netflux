@@ -1,30 +1,28 @@
 // 내가 찜한 리스트 페이지
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTh, faList, faHeartBroken } from '@fortawesome/free-solid-svg-icons';
+import { faList, faStream, faHeartBroken, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
 import { getWishlist } from '../../services/wishlist';
 import './Wishlist.css';
 
 const Wishlist = () => {
-  const [movies, setMovies] = useState([]);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [allMovies, setAllMovies] = useState([]);
+  const [viewMode, setViewMode] = useState('infinite');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+  const itemsPerPage = 20;
   
-  // 로컬 스토리지에서 위시리스트 불러오기 (API 호출 없음)
   useEffect(() => {
     const loadWishlist = () => {
       const wishlist = getWishlist();
-      setMovies(wishlist);
+      setAllMovies(wishlist);
+      setCurrentPage(1);
     };
 
-    // 페이지 로드 시 로컬 스토리지에서 불러오기
     loadWishlist();
-
-    // 다른 탭/창에서 변경사항이 있을 수 있으므로 이벤트 리스너 추가
     window.addEventListener('storage', loadWishlist);
-    
-    // 커스텀 이벤트 리스너 (앱 내에서 변경 시)
     window.addEventListener('wishlist-updated', loadWishlist);
 
     return () => {
@@ -32,6 +30,35 @@ const Wishlist = () => {
       window.removeEventListener('wishlist-updated', loadWishlist);
     };
   }, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowTopBtn(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const totalPages = Math.ceil(allMovies.length / itemsPerPage);
+  const currentPageMovies = viewMode === 'table' 
+    ? allMovies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    : allMovies;
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    setCurrentPage(1);
+    window.scrollTo(0, 0);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="wishlist-page">
@@ -40,38 +67,77 @@ const Wishlist = () => {
         <div className="wishlist-header">
           <h1>내가 찜한 리스트</h1>
           
-          {movies.length > 0 && (
+          {allMovies.length > 0 && (
             <div className="view-toggle">
               <button 
-                className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-                title="그리드 뷰"
+                className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                onClick={() => handleViewModeChange('table')}
+                title="테이블 뷰"
               >
-                <FontAwesomeIcon icon={faTh} /> Grid
+                <FontAwesomeIcon icon={faList} /> Table
               </button>
               <button 
-                className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => setViewMode('list')}
-                title="리스트 뷰"
+                className={`toggle-btn ${viewMode === 'infinite' ? 'active' : ''}`}
+                onClick={() => handleViewModeChange('infinite')}
+                title="인피니티 뷰"
               >
-                <FontAwesomeIcon icon={faList} /> List
+                <FontAwesomeIcon icon={faStream} /> Infinite
               </button>
             </div>
           )}
         </div>
 
-        {movies.length > 0 ? (
-          <div className={`movie-container ${viewMode}-view`}>
-            {movies.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </div>
+        {allMovies.length > 0 ? (
+          <>
+            {viewMode === 'infinite' && (
+              <div className="movie-container infinite-view">
+                {currentPageMovies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            )}
+            {viewMode === 'table' && (
+              <div className="table-view-container">
+                <div className="movie-container table-view">
+                  {currentPageMovies.map((movie) => (
+                    <MovieCard key={movie.id} movie={movie} />
+                  ))}
+                </div>
+                
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button 
+                      onClick={() => handlePageChange(currentPage - 1)} 
+                      disabled={currentPage === 1}
+                      className="page-btn"
+                    >
+                      이전
+                    </button>
+                    <span className="page-info">{currentPage} / {totalPages}</span>
+                    <button 
+                      onClick={() => handlePageChange(currentPage + 1)} 
+                      disabled={currentPage === totalPages}
+                      className="page-btn"
+                    >
+                      다음
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         ) : (
           <div className="empty-wishlist">
             <FontAwesomeIcon icon={faHeartBroken} className="empty-icon" />
             <h2>아직 찜한 콘텐츠가 없어요.</h2>
             <p>마음에 드는 콘텐츠를 찾아 찜해보세요!</p>
           </div>
+        )}
+
+        {showTopBtn && (
+          <button className="top-btn" onClick={scrollToTop}>
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button>
         )}
       </main>
     </div>

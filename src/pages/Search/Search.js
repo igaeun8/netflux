@@ -471,9 +471,6 @@ const Search = () => {
             </div>
           ) : displayMovies.length > 0 ? (
             <>
-              <div className="results-header">
-                <p className="results-count">{displayMovies.length}개의 결과</p>
-              </div>
               <div className="movie-grid">
                 {displayMovies.map(movie => (
                   <MovieCard key={movie.id} movie={movie} />
