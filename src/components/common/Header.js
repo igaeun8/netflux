@@ -12,7 +12,19 @@ const Header = () => {
   const location = useLocation();
   const currentUser = getCurrentUser();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const userMenuRef = useRef(null);
+
+  // 스크롤 감지
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 외부 클릭 시 메뉴 닫기
   useEffect(() => {
@@ -46,7 +58,7 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
+    <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="header-content">
         <Link to={ROUTES.HOME} className="logo">
           NETFLUX

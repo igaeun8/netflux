@@ -78,7 +78,10 @@ export const movieApi = {
   // 현재 상영작
   getNowPlaying: (page = 1) => {
     return apiClient.get(TMDB_ENDPOINTS.NOW_PLAYING, {
-      params: { page }
+      params: { 
+        page,
+        region: 'KR' // 한국 지역 설정
+      }
     });
   },
 

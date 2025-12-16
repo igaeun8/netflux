@@ -11,13 +11,14 @@ const Wishlist = () => {
   const [movies, setMovies] = useState([]);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   
-  // 위시리스트 불러오기 (페이지 로드 시 및 주기적으로 확인)
+  // 로컬 스토리지에서 위시리스트 불러오기 (API 호출 없음)
   useEffect(() => {
     const loadWishlist = () => {
       const wishlist = getWishlist();
       setMovies(wishlist);
     };
 
+    // 페이지 로드 시 로컬 스토리지에서 불러오기
     loadWishlist();
 
     // 다른 탭/창에서 변경사항이 있을 수 있으므로 이벤트 리스너 추가
@@ -31,17 +32,6 @@ const Wishlist = () => {
       window.removeEventListener('wishlist-updated', loadWishlist);
     };
   }, []);
-
-  // 위시리스트 변경 감지를 위한 폴링 (간단한 해결책)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentWishlist = getWishlist();
-      if (JSON.stringify(currentWishlist) !== JSON.stringify(movies)) {
-        setMovies(currentWishlist);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [movies]);
 
   return (
     <div className="wishlist-page">
