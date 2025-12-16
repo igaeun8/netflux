@@ -1,5 +1,5 @@
 // 검색 페이지
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -16,11 +16,15 @@ import {
   faTimes,
   faSearch,
   faClock,
-  faXmark
+  faXmark,
+  faList,
+  faStream,
+  faArrowUp
 } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
-import { useMovieSearch, usePopularMovies, useFilteredMovies, useGenres } from '../../hooks/useMovies';
+import { usePopularMovies, useGenres } from '../../hooks/useMovies';
+import { movieApi } from '../../services/api';
 import { STORAGE_KEYS } from '../../constants/storage';
 import './Search.css';
 
@@ -107,30 +111,24 @@ const Search = () => {
   
   const [showFilters, setShowFilters] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
-  const [displayMovies, setDisplayMovies] = useState([]);
   const [searchHistory, setSearchHistory] = useState(getSearchHistory());
   const searchBarRef = useRef(null);
+  
+  // 뷰 모드 및 페이지네이션 상태
+  const [viewMode, setViewMode] = useState('infinite'); // 'table' or 'infinite'
+  const [page, setPage] = useState(1);
+  const [allMovies, setAllMovies] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+  
+  // 무한 스크롤용 observer
+  const observer = useRef();
 
   // 장르 목록 가져오기
   const { genres } = useGenres();
-
-  // 검색 훅 사용
-  const { movies: searchMovies, loading: searchLoading, error: searchError } = useMovieSearch(query);
-  const { movies: popularMovies, loading: popularLoading, error: popularError } = usePopularMovies();
-
-  // 실제로 적용된 필터링 파라미터 (useMemo로 메모이제이션)
-  const appliedFilters = useMemo(() => ({
-    genreId: appliedGenreId,
-    minRating: appliedMinRating,
-    sortBy: appliedSortBy,
-    year: appliedYear ? parseInt(appliedYear) : null
-  }), [appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
-
-  // 필터링된 영화 가져오기 (검색어가 없을 때만)
-  const shouldUseFilters = !query;
-  const { movies: filteredMovies, loading: filteredLoading, error: filteredError } = useFilteredMovies(
-    shouldUseFilters ? appliedFilters : null
-  );
+  const { movies: popularMovies } = usePopularMovies();
 
   // 검색어 변경 핸들러
   const handleSearchChange = (e) => {
@@ -236,22 +234,81 @@ const Search = () => {
     setSearchParams({});
   };
 
-  // 표시할 영화 결정
-  useEffect(() => {
-    if (query) {
-      // 검색어가 있으면 검색 결과 사용 (필터링 없이)
-      setDisplayMovies(searchMovies || []);
-    } else {
-      // 필터가 적용되었거나 기본값인 경우
-      if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
-        // 필터링된 결과 사용
-        setDisplayMovies(filteredMovies || []);
+  // 영화 로드 함수
+  const loadMovies = useCallback(async (pageNum, isReset = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let response;
+      
+      if (query) {
+        // 검색어가 있으면 검색 API 사용
+        response = await movieApi.searchMovies(query, pageNum);
+      } else if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
+        // 필터가 적용된 경우
+        const params = { page: pageNum };
+        if (appliedGenreId) params.with_genres = appliedGenreId;
+        if (appliedMinRating > 0) params['vote_average.gte'] = appliedMinRating;
+        params.sort_by = appliedSortBy;
+        if (appliedYear) params.primary_release_year = parseInt(appliedYear);
+        
+        response = await movieApi.discoverMovies(params);
       } else {
-        // 기본값: 인기 영화 표시
-        setDisplayMovies(popularMovies || []);
+        // 기본값: 인기 영화
+        response = await movieApi.getPopular(pageNum);
       }
+      
+      const newMovies = response.data.results || [];
+      setTotalPages(response.data.total_pages || 0);
+      
+      if (isReset) {
+        setAllMovies(newMovies);
+      } else {
+        setAllMovies(prev => [...prev, ...newMovies]);
+      }
+    } catch (err) {
+      setError(err.message || '영화를 불러오는데 실패했습니다.');
+      setAllMovies([]);
+    } finally {
+      setLoading(false);
     }
-  }, [query, searchMovies, filteredMovies, popularMovies, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+
+  // 필터나 검색어 변경 시 영화 다시 로드
+  useEffect(() => {
+    setPage(1);
+    loadMovies(1, true);
+  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+
+  // 스크롤 이벤트 (Top 버튼 표시)
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowTopBtn(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 무한 스크롤: 마지막 요소 감지
+  const lastMovieElementRef = useCallback(node => {
+    if (loading) return;
+    if (viewMode === 'table') return; // 테이블 뷰에서는 무한 스크롤 비활성화
+    
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && page < totalPages) {
+        setPage(prevPage => {
+          const nextPage = prevPage + 1;
+          loadMovies(nextPage);
+          return nextPage;
+        });
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [loading, viewMode, page, totalPages, loadMovies]);
 
   // 개봉년도 옵션 생성 (최근 20년)
   const currentYear = new Date().getFullYear();
@@ -276,8 +333,29 @@ const Search = () => {
   // 필터가 적용되었는지 확인
   const hasActiveFilters = appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear;
 
-  const loading = query ? searchLoading : (hasActiveFilters ? filteredLoading : popularLoading);
-  const error = query ? searchError : (hasActiveFilters ? filteredError : popularError);
+  // 뷰 모드 변경 핸들러
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    setPage(1);
+    loadMovies(1, true);
+    window.scrollTo(0, 0);
+  };
+
+  // 페이지 변경 핸들러 (Table View)
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      loadMovies(newPage, true);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  // 맨 위로 이동
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 테이블 뷰에서는 allMovies가 현재 페이지의 영화만 포함하므로 그대로 사용
 
   return (
     <div className="search-page">
@@ -459,7 +537,29 @@ const Search = () => {
         {error && <div className="error-message">{error}</div>}
 
         <div className="search-results">
-          {loading ? (
+          {/* 뷰 모드 토글 버튼 */}
+          {allMovies.length > 0 && (
+            <div className="view-toggle-container">
+              <div className="view-toggle">
+                <button 
+                  className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => handleViewModeChange('table')}
+                  title="테이블 뷰"
+                >
+                  <FontAwesomeIcon icon={faList} /> Table
+                </button>
+                <button 
+                  className={`toggle-btn ${viewMode === 'infinite' ? 'active' : ''}`}
+                  onClick={() => handleViewModeChange('infinite')}
+                  title="무한 스크롤"
+                >
+                  <FontAwesomeIcon icon={faStream} /> Infinite
+                </button>
+              </div>
+            </div>
+          )}
+
+          {loading && page === 1 ? (
             <div className="skeleton-grid">
               {[...Array(12)].map((_, index) => (
                 <div key={index} className="skeleton-card">
@@ -469,13 +569,51 @@ const Search = () => {
                 </div>
               ))}
             </div>
-          ) : displayMovies.length > 0 ? (
+          ) : allMovies.length > 0 ? (
             <>
-              <div className="movie-grid">
-                {displayMovies.map(movie => (
-                  <MovieCard key={movie.id} movie={movie} />
-                ))}
-              </div>
+              {viewMode === 'infinite' ? (
+                // 무한 스크롤 뷰
+                <div className="movie-grid infinite-view">
+                  {allMovies.map((movie, index) => {
+                    if (allMovies.length === index + 1) {
+                      return (
+                        <div ref={lastMovieElementRef} key={`${movie.id}-${index}`}>
+                          <MovieCard movie={movie} />
+                        </div>
+                      );
+                    } else {
+                      return <MovieCard key={`${movie.id}-${index}`} movie={movie} />;
+                    }
+                  })}
+                </div>
+              ) : (
+                // 테이블 뷰
+                <div className="table-view-container">
+                  <div className="movie-grid table-view">
+                    {allMovies.map(movie => (
+                      <MovieCard key={movie.id} movie={movie} />
+                    ))}
+                  </div>
+                  
+                  <div className="pagination">
+                    <button 
+                      onClick={() => handlePageChange(page - 1)} 
+                      disabled={page === 1}
+                      className="page-btn"
+                    >
+                      이전
+                    </button>
+                    <span className="page-info">{page} / {totalPages}</span>
+                    <button 
+                      onClick={() => handlePageChange(page + 1)} 
+                      disabled={page >= totalPages}
+                      className="page-btn"
+                    >
+                      다음
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className="no-results">
@@ -487,6 +625,13 @@ const Search = () => {
             </div>
           )}
         </div>
+
+        {/* Top 버튼 */}
+        {showTopBtn && (
+          <button className="top-btn" onClick={scrollToTop}>
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button>
+        )}
       </main>
     </div>
   );
