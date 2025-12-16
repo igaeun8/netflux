@@ -1,4 +1,4 @@
-# [TP] 과제 2) GPT와 함께 Front-End Demo Site 개발 
+# [초급프로젝트] 과제 2) GPT와 함께 Front-End Demo Site 개발 
 본 프로젝트는 GPT를 적극 활용하여 Netflix와 유사한 Front-End 데모 사이트를 제작하는 것을 목표로 합니다. React.js(또는 Vue.js)를 사용해 Single Page Application(SPA)을 개발하고, GitHub Pages를 통해 정적 웹사이트 배포까지 전 과정을 실습합니다.
 React.js 기반의 Netflix 클론 프로젝트로, TMDB API를 활용하여 영화 정보를 동적으로 표시하며, Local Storage를 이용한 사용자 데이터 관리 기능을 구현합니다. 또한 다양한 디바이스 환경에서도 원활하게 사용할 수 있도록 반응형 웹 디자인을 적용합니다.
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2bbd19e1-2a13-4498-97c2-39aaae2ae4f1" />
