@@ -187,6 +187,18 @@
 }
 
 /* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .wishlist-content {
+    padding: 100px 2rem 3rem;
+  }
+
+  .movie-container.table-view,
+  .movie-container.infinite-view {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .wishlist-content {
     padding: 80px 1rem 2rem;
@@ -223,11 +235,13 @@
   .pagination {
     gap: 1rem;
     margin-top: 2rem;
+    flex-wrap: wrap;
   }
 
   .page-btn {
     padding: 0.625rem 1rem;
     font-size: 0.85rem;
+    min-width: 44px;
   }
 
   .page-info {
@@ -241,5 +255,88 @@
     bottom: 1.5rem;
     right: 1.5rem;
     font-size: 1.1rem;
+  }
+
+  .empty-wishlist {
+    padding: 3rem 0;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+  }
+
+  .empty-wishlist h2 {
+    font-size: 1.5rem;
+  }
+
+  .empty-wishlist p {
+    font-size: 1rem;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .wishlist-content {
+    padding: 70px 0.75rem 1.5rem;
+  }
+
+  .wishlist-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .toggle-btn {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .toggle-btn svg {
+    font-size: 0.75rem;
+  }
+
+  .movie-container.table-view,
+  .movie-container.infinite-view {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .pagination {
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .page-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 40px;
+  }
+
+  .page-info {
+    font-size: 0.85rem;
+    min-width: 50px;
+  }
+
+  .top-btn {
+    width: 40px;
+    height: 40px;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 1rem;
+  }
+
+  .empty-wishlist {
+    padding: 2rem 0;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-wishlist h2 {
+    font-size: 1.3rem;
+  }
+
+  .empty-wishlist p {
+    font-size: 0.9rem;
   }
 }
