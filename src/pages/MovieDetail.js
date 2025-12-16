@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faStar, faCalendarAlt, faClock, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faStar, faCalendarAlt, faClock, faPlay, faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Header from '../components/common/Header';
 import MovieList from '../components/movie/MovieList';
 import { useMovieDetail } from '../hooks/useMovies';
 import { getBackdropUrl, getPosterUrl } from '../utils/imageUrl';
+import { toggleWishlist, isInWishlist } from '../services/wishlist';
 import './MovieDetail.css';
 
 const MovieDetail = () => {
@@ -16,6 +18,7 @@ const MovieDetail = () => {
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerKey, setTrailerKey] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isWished, setIsWished] = useState(false);
 
   useEffect(() => {
     if (movie && movie.videos) {
@@ -25,6 +28,12 @@ const MovieDetail = () => {
       if (trailer) {
         setTrailerKey(trailer.key);
       }
+    }
+  }, [movie]);
+
+  useEffect(() => {
+    if (movie) {
+      setIsWished(isInWishlist(movie.id));
     }
   }, [movie]);
 
@@ -60,11 +69,26 @@ const MovieDetail = () => {
             <h1 className="detail-title">{movie.title}</h1>
             {movie.tagline && <p className="tagline">"{movie.tagline}"</p>}
 
-            {trailerKey && (
-              <button className="trailer-btn" onClick={() => setShowTrailer(true)}>
-                <FontAwesomeIcon icon={faPlay} /> 예고편 보기
+            <div className="action-buttons">
+              {trailerKey && (
+                <button className="trailer-btn" onClick={() => setShowTrailer(true)}>
+                  <FontAwesomeIcon icon={faPlay} /> 예고편 보기
+                </button>
+              )}
+              <button 
+                className={`wishlist-btn-detail ${isWished ? 'active' : ''}`}
+                onClick={() => {
+                  toggleWishlist(movie);
+                  setIsWished(!isWished);
+                  // 위시리스트 업데이트 이벤트 발생
+                  window.dispatchEvent(new CustomEvent('wishlist-updated'));
+                }}
+                aria-label={isWished ? "위시리스트에서 제거" : "위시리스트에 추가"}
+              >
+                <FontAwesomeIcon icon={isWished ? faHeartSolid : faHeartRegular} />
+                {isWished ? ' 찜한 작품' : ' 찜하기'}
               </button>
-            )}
+            </div>
 
             <div className="meta-info">
               <span className="rating">
@@ -95,6 +119,12 @@ const MovieDetail = () => {
                 주요 정보
               </button>
               <button 
+                className={`tab-btn ${activeTab === 'recommendations' ? 'active' : ''}`}
+                onClick={() => setActiveTab('recommendations')}
+              >
+                추천 영화
+              </button>
+              <button 
                 className={`tab-btn ${activeTab === 'production' ? 'active' : ''}`}
                 onClick={() => setActiveTab('production')}
               >
@@ -107,6 +137,23 @@ const MovieDetail = () => {
                 <div className="overview-section fade-in">
                   <h3>줄거리</h3>
                   <p className="overview">{movie.overview || "상세 줄거리가 없습니다."}</p>
+                </div>
+              )}
+
+              {activeTab === 'recommendations' && (
+                <div className="recommendations-section fade-in">
+                  {movie.recommendations && movie.recommendations.length > 0 ? (
+                    <div className="recommendations-list">
+                      <MovieList 
+                        title="" 
+                        movies={movie.recommendations} 
+                        loading={false} 
+                        error={null} 
+                      />
+                    </div>
+                  ) : (
+                    <p className="no-data">추천 영화가 없습니다.</p>
+                  )}
                 </div>
               )}
 
@@ -136,20 +183,6 @@ const MovieDetail = () => {
                 </div>
               )}
             </div>
-            
-            {movie.recommendations && movie.recommendations.length > 0 && (
-              <div className="recommendations-section">
-                <h3>추천 영화</h3>
-                <div className="recommendations-list">
-                  <MovieList 
-                    title="" 
-                    movies={movie.recommendations} 
-                    loading={false} 
-                    error={null} 
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </main>
