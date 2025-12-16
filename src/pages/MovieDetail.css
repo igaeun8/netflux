@@ -4,6 +4,7 @@
   background: #141414;
   color: #fff;
   position: relative;
+  overflow-x: hidden;
 }
 
 /* 배경 이미지 섹션 */
@@ -13,15 +14,17 @@
   left: 0;
   width: 100%;
   height: 50vh;
+  min-height: 300px;
   background-size: cover;
   background-position: center top;
+  background-repeat: no-repeat;
   z-index: 0;
 }
 
 .backdrop-overlay {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* 전체적인 어두움 추가 */
+  background: rgba(0, 0, 0, 0.7);
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, #141414 100%);
 }
 
@@ -31,7 +34,10 @@
   z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 2rem 3rem; /* 상단 패딩 조정 - 스크롤 없이 보이도록 */
+  padding: 120px 2rem 3rem;
+  scroll-margin-top: 80px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-btn {
@@ -47,9 +53,12 @@
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn:active {
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -59,32 +68,49 @@
   grid-template-columns: 300px minmax(0, 1fr);
   gap: 3rem;
   align-items: start;
+  width: 100%;
 }
 
 /* 포스터 섹션 */
+.poster-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .detail-poster {
   width: 100%;
+  max-width: 300px;
+  height: auto;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+  aspect-ratio: 2 / 3;
 }
 
 /* 정보 섹션 */
 .info-section {
   padding-top: 1rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .detail-title {
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: bold;
   margin-bottom: 0.5rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  word-break: keep-all;
+  line-height: 1.2;
 }
 
 .tagline {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: #aaa;
   font-style: italic;
   margin-bottom: 1.5rem;
+  word-break: keep-all;
 }
 
 .action-buttons {
@@ -92,44 +118,61 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .trailer-btn {
   background-color: #fff;
   color: #000;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 2vw, 0.95rem);
   font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+  flex: 1;
+  min-width: 120px;
 }
 
-.trailer-btn:hover {
+.trailer-btn:hover,
+.trailer-btn:active {
   background-color: rgba(255, 255, 255, 0.75);
+  transform: scale(0.98);
 }
 
 .wishlist-btn-detail {
   background-color: rgba(109, 109, 110, 0.7);
   color: #fff;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 2vw, 0.95rem);
   font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+  flex: 1;
+  min-width: 120px;
 }
 
-.wishlist-btn-detail:hover {
+.wishlist-btn-detail:hover,
+.wishlist-btn-detail:active {
   background-color: rgba(109, 109, 110, 0.9);
+  transform: scale(0.98);
 }
 
 .wishlist-btn-detail.active {
@@ -137,7 +180,8 @@
   color: #fff;
 }
 
-.wishlist-btn-detail.active:hover {
+.wishlist-btn-detail.active:hover,
+.wishlist-btn-detail.active:active {
   background-color: #f40612;
 }
 
@@ -145,13 +189,15 @@
   display: flex;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  flex-wrap: wrap;
 }
 
 .meta-info span {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .star-icon {
@@ -163,6 +209,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 2rem;
+  justify-content: flex-start;
 }
 
 .genre-tag {
@@ -170,7 +217,8 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
+  white-space: nowrap;
 }
 
 /* 탭 메뉴 스타일 */
@@ -180,21 +228,35 @@
   margin-bottom: 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   padding-bottom: 0.5rem;
+  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.detail-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
   background: transparent;
   border: none;
   color: #aaa;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   font-weight: bold;
   padding: 0.5rem 0;
   cursor: pointer;
   position: relative;
   transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.tab-btn:hover {
+.tab-btn:hover,
+.tab-btn:active {
   color: #fff;
 }
 
@@ -212,24 +274,37 @@
   background-color: #e50914;
 }
 
+/* 탭 컨텐츠 */
+.tab-content {
+  min-height: 200px;
+  width: 100%;
+  overflow: visible;
+}
+
 /* 탭 컨텐츠 애니메이션 */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .overview-section h3 {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   margin-bottom: 1rem;
   font-weight: bold;
 }
 
 .overview {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2vw, 1.1rem);
   line-height: 1.6;
   color: #ddd;
   white-space: normal;
@@ -239,10 +314,11 @@
 /* 제작사 섹션 */
 .production-section {
   margin-top: 0;
+  width: 100%;
 }
 
 .production-section h3 {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   margin-bottom: 1rem;
   font-weight: bold;
 }
@@ -252,6 +328,7 @@
   flex-wrap: wrap;
   gap: 1.5rem;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .company-item {
@@ -263,9 +340,10 @@
 .company-logo {
   max-height: 40px;
   max-width: 120px;
-  filter: brightness(0) invert(1); /* 로고를 흰색으로 변경 */
+  filter: brightness(0) invert(1);
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  object-fit: contain;
 }
 
 .company-logo:hover {
@@ -273,7 +351,7 @@
 }
 
 .company-name {
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   color: #ddd;
   font-weight: 500;
 }
@@ -281,6 +359,7 @@
 .no-data {
   color: #aaa;
   font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.1rem);
 }
 
 /* 추천 영화 섹션 */
@@ -288,13 +367,19 @@
   margin-top: 0;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .recommendations-section h3 {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   font-weight: bold;
   margin-bottom: 1.5rem;
+}
+
+.recommendations-list {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 /* 예고편 모달 */
@@ -304,34 +389,82 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .trailer-content {
   position: relative;
-  width: 80%;
+  width: 100%;
   max-width: 900px;
-  aspect-ratio: 16 / 9;
+  min-width: 320px;
   background: #000;
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  /* 16:9 비율 고정 */
+  aspect-ratio: 16 / 9;
+  /* 크기 고정을 위한 추가 속성 */
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+}
+
+.trailer-iframe-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.trailer-content iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }
 
 .close-trailer {
   position: absolute;
-  top: -40px;
+  top: -50px;
   right: 0;
   background: transparent;
   border: none;
   color: #fff;
-  font-size: 2rem;
+  font-size: 2.5rem;
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: color 0.2s ease;
 }
 
-.close-trailer:hover {
+.close-trailer:hover,
+.close-trailer:active {
   color: #e50914;
 }
 
@@ -341,65 +474,304 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
   color: #fff;
   background: #141414;
+  padding: 2rem;
+  text-align: center;
 }
 
 .detail-error {
   color: #e50914;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
+/* 태블릿 반응형 (768px ~ 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
   .detail-content {
-    padding: 100px 1rem 2rem;
+    padding: 100px 1.5rem 3rem;
   }
 
   .detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 250px minmax(0, 1fr);
     gap: 2rem;
   }
 
   .detail-poster {
-    width: 200px;
+    max-width: 250px;
+  }
+
+  .detail-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* 모바일 반응형 (768px 이하) */
+@media (max-width: 768px) {
+  .detail-backdrop {
+    height: 40vh;
+    min-height: 250px;
+  }
+
+  .detail-content {
+    padding: 90px 1rem 2rem;
+    position: relative;
+  }
+
+  .back-btn {
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .poster-section {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .detail-poster {
+    width: 100%;
+    max-width: 250px;
     margin: 0 auto;
     display: block;
   }
 
+  .info-section {
+    width: 100%;
+    max-width: 100%;
+    padding-top: 0;
+  }
+
   .detail-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
     text-align: center;
+    margin-bottom: 0.75rem;
   }
 
   .tagline {
+    font-size: 1rem;
     text-align: center;
+    margin-bottom: 1.25rem;
   }
   
   .action-buttons {
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
   
   .trailer-btn,
   .wishlist-btn-detail {
-     width: 100%;
-     justify-content: center;
+    flex: 0 1 auto;
+    justify-content: center;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .meta-info {
     justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .genres {
     justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .genre-tag {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.875rem;
+  }
+
+  .detail-tabs {
+    flex-wrap: nowrap;
+    gap: 1rem;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .tab-btn {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    min-width: auto;
+  }
+  
+  .tab-content {
+    width: 100%;
+    overflow: visible;
+    min-height: 150px;
+  }
+
+  .overview-section h3,
+  .production-section h3,
+  .recommendations-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .overview {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .recommendations-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .recommendations-list {
+    width: 100%;
+    overflow: visible;
   }
   
   .companies {
     justify-content: center;
+    gap: 1rem;
+  }
+
+  .company-logo {
+    max-height: 35px;
+    max-width: 100px;
+  }
+
+  .company-name {
+    font-size: 0.85rem;
   }
   
   .trailer-content {
-    width: 95%;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .close-trailer {
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .detail-backdrop {
+    height: 35vh;
+    min-height: 200px;
+  }
+
+  .detail-content {
+    padding: 80px 0.75rem 1.5rem;
+  }
+
+  .back-btn {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-grid {
+    gap: 1.25rem;
+  }
+
+  .detail-poster {
+    max-width: 200px;
+  }
+
+  .detail-title {
+    font-size: 1.5rem;
+  }
+
+  .tagline {
+    font-size: 0.9rem;
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .trailer-btn,
+  .wishlist-btn-detail {
+    flex: 0 1 auto;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .meta-info {
+    font-size: 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .detail-tabs {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .tab-btn {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.5rem;
+  }
+
+  .overview-section h3,
+  .production-section h3,
+  .recommendations-section h3 {
+    font-size: 1.2rem;
+  }
+
+  .overview {
+    font-size: 0.95rem;
+  }
+}
+
+/* 가로 모드 (landscape) 대응 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .detail-backdrop {
+    height: 60vh;
+  }
+
+  .detail-content {
+    padding: 80px 1rem 2rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .detail-poster {
+    max-width: 200px;
+  }
+
+  .detail-title {
+    font-size: 1.8rem;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .back-btn:active,
+  .trailer-btn:active,
+  .wishlist-btn-detail:active,
+  .tab-btn:active {
+    opacity: 0.8;
+    transform: scale(0.98);
   }
 }

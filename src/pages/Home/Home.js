@@ -10,7 +10,6 @@ import {
   usePopularMovies, 
   useNowPlayingMovies, 
   useTopRatedMovies, 
-  useUpcomingMovies,
   useGenreMovies,
   useGenres
 } from '../../hooks/useMovies';
@@ -27,11 +26,11 @@ const Home = () => {
   const popular = usePopularMovies();
   const nowPlaying = useNowPlayingMovies();
   const topRated = useTopRatedMovies();
-  const upcoming = useUpcomingMovies();
   
   // 장르별 인기 영화
   const actionMovies = useGenreMovies(28); // 액션
   const comedyMovies = useGenreMovies(35); // 코미디
+  const romanceMovies = useGenreMovies(10749); // 로맨스
   const { genres } = useGenres();
 
   // 배너 슬라이드 관련 상태
@@ -209,7 +208,7 @@ const Home = () => {
 
       <main className="home-content">
         <MovieList 
-          title="대세 콘텐츠" 
+          title="인기 콘텐츠" 
           movies={popular.movies} 
           loading={popular.loading} 
           error={popular.error} 
@@ -223,31 +222,31 @@ const Home = () => {
         />
         
         <MovieList 
-          title="인기 있는 액션 영화" 
-          movies={actionMovies.movies} 
-          loading={actionMovies.loading} 
-          error={actionMovies.error} 
-        />
-        
-        <MovieList 
-          title="인기 있는 코미디 영화" 
-          movies={comedyMovies.movies} 
-          loading={comedyMovies.loading} 
-          error={comedyMovies.error} 
-        />
-        
-        <MovieList 
-          title="평점 높은 영화" 
+          title="최고 평점" 
           movies={topRated.movies} 
           loading={topRated.loading} 
           error={topRated.error} 
         />
         
         <MovieList 
-          title="개봉 예정작" 
-          movies={upcoming.movies} 
-          loading={upcoming.loading} 
-          error={upcoming.error} 
+          title="로맨스 영화" 
+          movies={romanceMovies.movies} 
+          loading={romanceMovies.loading} 
+          error={romanceMovies.error} 
+        />
+        
+        <MovieList 
+          title="코미디 영화" 
+          movies={comedyMovies.movies} 
+          loading={comedyMovies.loading} 
+          error={comedyMovies.error} 
+        />
+        
+        <MovieList 
+          title="액션 영화" 
+          movies={actionMovies.movies} 
+          loading={actionMovies.loading} 
+          error={actionMovies.error} 
         />
       </main>
     </div>

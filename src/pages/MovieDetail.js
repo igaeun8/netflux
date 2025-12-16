@@ -1,5 +1,4 @@
-// 영화 상세 정보 페이지
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faStar, faCalendarAlt, faClock, faPlay, faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons';
@@ -37,6 +36,52 @@ const MovieDetail = () => {
     }
   }, [movie]);
 
+  const handleTabScroll = () => {
+    if (window.innerWidth <= 768) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
+  const setActiveTabWithScroll = (tab) => {
+    setActiveTab(tab);
+    handleTabScroll();
+  };
+
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (showTrailer) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showTrailer]);
+
+  // 화면 회전 대응
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        document.body.style.overflowX = 'hidden';
+      } else {
+        document.body.style.overflowX = '';
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      document.body.style.overflowX = '';
+    };
+  }, []);
+
   if (loading) return <div className="detail-loading">로딩 중...</div>;
   if (error) return <div className="detail-error">{error}</div>;
   if (!movie) return <div className="detail-error">영화 정보를 찾을 수 없습니다.</div>;
@@ -55,7 +100,7 @@ const MovieDetail = () => {
         <div className="backdrop-overlay"></div>
       </div>
 
-      <main className="detail-content">
+      <main className="detail-content" id="detail-content">
         <button onClick={() => navigate(-1)} className="back-btn">
           <FontAwesomeIcon icon={faArrowLeft} /> 뒤로 가기
         </button>
@@ -80,7 +125,6 @@ const MovieDetail = () => {
                 onClick={() => {
                   toggleWishlist(movie);
                   setIsWished(!isWished);
-                  // 위시리스트 업데이트 이벤트 발생
                   window.dispatchEvent(new CustomEvent('wishlist-updated'));
                 }}
                 aria-label={isWished ? "위시리스트에서 제거" : "위시리스트에 추가"}
@@ -111,37 +155,59 @@ const MovieDetail = () => {
               ))}
             </div>
 
-            <div className="detail-tabs">
+            <div className="detail-tabs" role="tablist">
               <button 
+                role="tab"
+                aria-selected={activeTab === 'overview'}
+                aria-controls="overview-panel"
+                id="overview-tab"
                 className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setActiveTab('overview')}
+                onClick={() => setActiveTabWithScroll('overview')}
               >
                 주요 정보
               </button>
               <button 
+                role="tab"
+                aria-selected={activeTab === 'recommendations'}
+                aria-controls="recommendations-panel"
+                id="recommendations-tab"
                 className={`tab-btn ${activeTab === 'recommendations' ? 'active' : ''}`}
-                onClick={() => setActiveTab('recommendations')}
+                onClick={() => setActiveTabWithScroll('recommendations')}
               >
                 추천 영화
               </button>
               <button 
+                role="tab"
+                aria-selected={activeTab === 'production'}
+                aria-controls="production-panel"
+                id="production-tab"
                 className={`tab-btn ${activeTab === 'production' ? 'active' : ''}`}
-                onClick={() => setActiveTab('production')}
+                onClick={() => setActiveTabWithScroll('production')}
               >
                 제작 정보
               </button>
             </div>
 
-            <div className="tab-content">
+            <div className="tab-content" role="tabpanel">
               {activeTab === 'overview' && (
-                <div className="overview-section fade-in">
+                <div 
+                  id="overview-panel"
+                  role="tabpanel"
+                  aria-labelledby="overview-tab"
+                  className="overview-section fade-in"
+                >
                   <h3>줄거리</h3>
                   <p className="overview">{movie.overview || "상세 줄거리가 없습니다."}</p>
                 </div>
               )}
 
               {activeTab === 'recommendations' && (
-                <div className="recommendations-section fade-in">
+                <div 
+                  id="recommendations-panel"
+                  role="tabpanel"
+                  aria-labelledby="recommendations-tab"
+                  className="recommendations-section fade-in"
+                >
                   {movie.recommendations && movie.recommendations.length > 0 ? (
                     <div className="recommendations-list">
                       <MovieList 
@@ -158,7 +224,12 @@ const MovieDetail = () => {
               )}
 
               {activeTab === 'production' && (
-                <div className="production-section fade-in">
+                <div 
+                  id="production-panel"
+                  role="tabpanel"
+                  aria-labelledby="production-tab"
+                  className="production-section fade-in"
+                >
                   <h3>제작사</h3>
                   {movie.production_companies && movie.production_companies.length > 0 ? (
                     <div className="companies">
@@ -170,6 +241,7 @@ const MovieDetail = () => {
                               alt={company.name} 
                               className="company-logo"
                               title={company.name}
+                              loading="lazy"
                             />
                           ) : (
                             <span className="company-name">{company.name}</span>
@@ -189,22 +261,24 @@ const MovieDetail = () => {
 
       {showTrailer && trailerKey && (
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
-          <div className="trailer-content">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          <div className="trailer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="trailer-iframe-wrapper">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="eager"
+              ></iframe>
+            </div>
             <button 
               className="close-trailer" 
               onClick={(e) => {
                 e.stopPropagation();
                 setShowTrailer(false);
               }}
+              aria-label="닫기"
             >
               ✕
             </button>
