@@ -9,8 +9,7 @@ import MovieList from '../../components/movie/MovieList';
 import { 
   usePopularMovies, 
   useNowPlayingMovies, 
-  useTopRatedMovies, 
-  useUpcomingMovies,
+  useTopRatedMovies,
   useGenreMovies,
   useGenres
 } from '../../hooks/useMovies';
@@ -27,11 +26,12 @@ const Home = () => {
   const popular = usePopularMovies();
   const nowPlaying = useNowPlayingMovies();
   const topRated = useTopRatedMovies();
-  const upcoming = useUpcomingMovies();
+
   
   // 장르별 인기 영화
   const actionMovies = useGenreMovies(28); // 액션
   const comedyMovies = useGenreMovies(35); // 코미디
+  const romanceMovies = useGenreMovies(10749); // 로맨스
   const { genres } = useGenres();
 
   // 배너 슬라이드 관련 상태
@@ -86,6 +86,18 @@ const Home = () => {
 
     fetchTrailer();
   }, [mainMovie]);
+
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (showTrailer) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showTrailer]);
 
   // 장르 이름 가져오기
   const getGenreNames = (genreIds) => {
@@ -188,18 +200,23 @@ const Home = () => {
       {showTrailer && trailerKey && (
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
           <div className="trailer-content" onClick={(e) => e.stopPropagation()}>
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+            <div className="trailer-iframe-wrapper">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="eager"
+              ></iframe>
+            </div>
             <button 
               className="close-trailer" 
-              onClick={() => setShowTrailer(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTrailer(false);
+              }}
+              aria-label="닫기"
             >
               ✕
             </button>
@@ -209,7 +226,7 @@ const Home = () => {
 
       <main className="home-content">
         <MovieList 
-          title="대세 콘텐츠" 
+          title="인기 콘텐츠" 
           movies={popular.movies} 
           loading={popular.loading} 
           error={popular.error} 
@@ -223,31 +240,31 @@ const Home = () => {
         />
         
         <MovieList 
-          title="인기 있는 액션 영화" 
-          movies={actionMovies.movies} 
-          loading={actionMovies.loading} 
-          error={actionMovies.error} 
-        />
-        
-        <MovieList 
-          title="인기 있는 코미디 영화" 
-          movies={comedyMovies.movies} 
-          loading={comedyMovies.loading} 
-          error={comedyMovies.error} 
-        />
-        
-        <MovieList 
-          title="평점 높은 영화" 
+          title="최고 평점" 
           movies={topRated.movies} 
           loading={topRated.loading} 
           error={topRated.error} 
         />
         
         <MovieList 
-          title="개봉 예정작" 
-          movies={upcoming.movies} 
-          loading={upcoming.loading} 
-          error={upcoming.error} 
+          title="로맨스 영화" 
+          movies={romanceMovies.movies} 
+          loading={romanceMovies.loading} 
+          error={romanceMovies.error} 
+        />
+        
+        <MovieList 
+          title="코미디 영화" 
+          movies={comedyMovies.movies} 
+          loading={comedyMovies.loading} 
+          error={comedyMovies.error} 
+        />
+        
+        <MovieList 
+          title="액션 영화" 
+          movies={actionMovies.movies} 
+          loading={actionMovies.loading} 
+          error={actionMovies.error} 
         />
       </main>
     </div>

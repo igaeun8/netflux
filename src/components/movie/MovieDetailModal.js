@@ -1,5 +1,4 @@
-// 영화 상세 정보 모달
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faStar, faCalendarAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 import { getBackdropUrl, getPosterUrl } from '../../utils/imageUrl';

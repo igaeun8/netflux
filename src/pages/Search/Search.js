@@ -16,8 +16,7 @@ import {
   faTimes,
   faSearch,
   faClock,
-  faXmark,
-  faSpinner
+  faXmark
 } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
@@ -292,6 +291,8 @@ const Search = () => {
               <FontAwesomeIcon icon={faSearch} className="search-icon" />
               <input
                 type="text"
+                id="movie-search-input"
+                name="movie-search"
                 placeholder="영화 제목을 입력하세요..."
                 value={query}
                 onChange={handleSearchChange}
@@ -304,6 +305,7 @@ const Search = () => {
                   }
                 }}
                 className="search-input"
+                autoComplete="off"
               />
             </div>
             
@@ -458,9 +460,14 @@ const Search = () => {
 
         <div className="search-results">
           {loading ? (
-            <div className="loading-container">
-              <FontAwesomeIcon icon={faSpinner} className="loading-spinner" spin />
-              <p className="loading-text">영화를 불러오는 중...</p>
+            <div className="skeleton-grid">
+              {[...Array(12)].map((_, index) => (
+                <div key={index} className="skeleton-card">
+                  <div className="skeleton-poster"></div>
+                  <div className="skeleton-title"></div>
+                  <div className="skeleton-rating"></div>
+                </div>
+              ))}
             </div>
           ) : displayMovies.length > 0 ? (
             <>
