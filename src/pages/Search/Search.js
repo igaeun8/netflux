@@ -1,5 +1,5 @@
 // 검색 페이지
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -11,14 +11,21 @@ import {
   faGhost,
   faHeart,
   faRocket,
-  faExclamationTriangle
+  faExclamationTriangle,
+  faFilter,
+  faTimes,
+  faSearch,
+  faClock,
+  faXmark,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/common/Header';
 import MovieCard from '../../components/movie/MovieCard';
-import { useMovieSearch, useGenreMovies, usePopularMovies } from '../../hooks/useMovies';
+import { useMovieSearch, usePopularMovies, useFilteredMovies, useGenres } from '../../hooks/useMovies';
+import { STORAGE_KEYS } from '../../constants/storage';
 import './Search.css';
 
-// 장르 카테고리 정의
+// 장르 카테고리 정의 (빠른 선택용)
 const GENRE_CATEGORIES = [
   { id: 28, name: '액션', icon: faBolt },
   { id: 12, name: '모험', icon: faMountain },
@@ -31,81 +38,247 @@ const GENRE_CATEGORIES = [
   { id: 53, name: '스릴러', icon: faExclamationTriangle },
 ];
 
+// 최근 검색어 관리 함수
+const MAX_SEARCH_HISTORY = 10;
+
+const getSearchHistory = () => {
+  try {
+    const history = localStorage.getItem(STORAGE_KEYS.RECENT_SEARCHES);
+    return history ? JSON.parse(history) : [];
+  } catch (error) {
+    return [];
+  }
+};
+
+const saveSearchHistory = (history) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.RECENT_SEARCHES, JSON.stringify(history));
+  } catch (error) {
+    // 검색 기록 저장 실패 시 무시
+  }
+};
+
+const addToSearchHistory = (searchQuery) => {
+  if (!searchQuery || searchQuery.trim() === '') return;
+  
+  const trimmedQuery = searchQuery.trim();
+  let history = getSearchHistory();
+  
+  // 중복 제거 (기존 항목이 있으면 제거)
+  history = history.filter(item => item !== trimmedQuery);
+  
+  // 새로운 검색어를 맨 앞에 추가
+  history.unshift(trimmedQuery);
+  
+  // 최대 개수 제한
+  if (history.length > MAX_SEARCH_HISTORY) {
+    history = history.slice(0, MAX_SEARCH_HISTORY);
+  }
+  
+  saveSearchHistory(history);
+};
+
+const removeFromSearchHistory = (searchQuery) => {
+  let history = getSearchHistory();
+  history = history.filter(item => item !== searchQuery);
+  saveSearchHistory(history);
+};
+
+const clearSearchHistory = () => {
+  localStorage.removeItem(STORAGE_KEYS.RECENT_SEARCHES);
+};
+
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
   const [query, setQuery] = useState(initialQuery);
-  const [selectedGenreId, setSelectedGenreId] = useState(null);
-  const [minRating, setMinRating] = useState(0);
+  
+  // 선택 중인 필터 (아직 적용되지 않은 상태)
+  const [pendingGenreId, setPendingGenreId] = useState(null);
+  const [pendingMinRating, setPendingMinRating] = useState(0);
+  const [pendingSortBy, setPendingSortBy] = useState('popularity.desc');
+  const [pendingYear, setPendingYear] = useState('');
+  
+  // 실제로 적용된 필터 (API 호출에 사용)
+  const [appliedGenreId, setAppliedGenreId] = useState(null);
+  const [appliedMinRating, setAppliedMinRating] = useState(0);
+  const [appliedSortBy, setAppliedSortBy] = useState('popularity.desc');
+  const [appliedYear, setAppliedYear] = useState('');
+  
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [displayMovies, setDisplayMovies] = useState([]);
+  const [searchHistory, setSearchHistory] = useState(getSearchHistory());
+  const searchBarRef = useRef(null);
+
+  // 장르 목록 가져오기
+  const { genres } = useGenres();
 
   // 검색 훅 사용
   const { movies: searchMovies, loading: searchLoading, error: searchError } = useMovieSearch(query);
-  const { movies: genreMovies, loading: genreLoading, error: genreError } = useGenreMovies(selectedGenreId);
   const { movies: popularMovies, loading: popularLoading, error: popularError } = usePopularMovies();
+
+  // 실제로 적용된 필터링 파라미터 (useMemo로 메모이제이션)
+  const appliedFilters = useMemo(() => ({
+    genreId: appliedGenreId,
+    minRating: appliedMinRating,
+    sortBy: appliedSortBy,
+    year: appliedYear ? parseInt(appliedYear) : null
+  }), [appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+
+  // 필터링된 영화 가져오기 (검색어가 없을 때만)
+  const shouldUseFilters = !query;
+  const { movies: filteredMovies, loading: filteredLoading, error: filteredError } = useFilteredMovies(
+    shouldUseFilters ? appliedFilters : null
+  );
 
   // 검색어 변경 핸들러
   const handleSearchChange = (e) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    setSelectedGenreId(null); // 검색 시 장르 선택 해제
+    if (newQuery) {
+      // 검색어가 있으면 필터 초기화
+      setAppliedGenreId(null);
+      setPendingGenreId(null);
+      setShowSearchHistory(true); // 검색어 입력 중에는 검색 기록 표시
+    } else {
+      setShowSearchHistory(false);
+    }
     setSearchParams({ q: newQuery });
   };
 
-  // 장르 버튼 클릭 핸들러
+  // 검색 실행 (엔터 키 또는 검색 기록 클릭 시)
+  const handleSearch = (searchQuery) => {
+    if (!searchQuery || searchQuery.trim() === '') return;
+    
+    const trimmedQuery = searchQuery.trim();
+    setQuery(trimmedQuery);
+    setSearchParams({ q: trimmedQuery });
+    // 검색어로 검색할 때는 필터 초기화
+    setAppliedGenreId(null);
+    setPendingGenreId(null);
+    setShowSearchHistory(false);
+    
+    // 검색 기록에 추가
+    addToSearchHistory(trimmedQuery);
+    setSearchHistory(getSearchHistory());
+  };
+
+  // 검색어 입력창 포커스 핸들러
+  const handleSearchFocus = () => {
+    if (!query) {
+      setShowSearchHistory(true);
+    }
+  };
+
+  // 검색어 입력창 포커스 아웃 핸들러
+  const handleSearchBlur = (e) => {
+    // 클릭한 요소가 검색 기록 영역이 아닐 경우에만 닫기
+    setTimeout(() => {
+      const currentTarget = e?.currentTarget || searchBarRef.current;
+      const activeElement = document.activeElement;
+      
+      if (currentTarget && activeElement) {
+        try {
+          if (!currentTarget.contains(activeElement)) {
+            setShowSearchHistory(false);
+          }
+        } catch {
+          setShowSearchHistory(false);
+        }
+      } else {
+        // currentTarget이나 activeElement가 null인 경우 닫기
+        setShowSearchHistory(false);
+      }
+    }, 200);
+  };
+
+  // 검색 기록에서 항목 제거
+  const handleRemoveHistoryItem = (e, historyItem) => {
+    e.stopPropagation();
+    removeFromSearchHistory(historyItem);
+    setSearchHistory(getSearchHistory());
+  };
+
+  // 검색 기록 전체 삭제
+  const handleClearHistory = () => {
+    clearSearchHistory();
+    setSearchHistory([]);
+  };
+
+  // 장르 버튼 클릭 핸들러 (바로 적용)
   const handleGenreClick = (genreId) => {
-    if (selectedGenreId === genreId) {
+    if (appliedGenreId === genreId) {
       // 같은 장르를 다시 클릭하면 해제
-      setSelectedGenreId(null);
-      setQuery('');
-      setSearchParams({});
+      setAppliedGenreId(null);
+      setPendingGenreId(null);
     } else {
-      setSelectedGenreId(genreId);
+      // 바로 적용된 필터에 반영
+      setAppliedGenreId(genreId);
+      setPendingGenreId(genreId); // 필터 패널에도 반영
       setQuery(''); // 장르 선택 시 검색어 초기화
       setSearchParams({});
     }
   };
 
+  // 필터 검색 실행 (검색 버튼 클릭 시)
+  const handleFilterSearch = () => {
+    // 선택 중인 필터를 적용된 필터로 복사
+    // 장르는 장르 버튼에서 바로 적용되므로, 필터 패널에서 선택했다면 그것도 적용
+    if (pendingGenreId !== null) {
+      setAppliedGenreId(pendingGenreId);
+    }
+    setAppliedMinRating(pendingMinRating);
+    setAppliedSortBy(pendingSortBy);
+    setAppliedYear(pendingYear);
+    setShowFilters(false);
+    setQuery('');
+    setSearchParams({});
+  };
+
   // 표시할 영화 결정
   useEffect(() => {
-    if (selectedGenreId) {
-      // 장르 선택 시
-      let result = [...(genreMovies || [])];
-      // 평점 필터링
-      if (minRating > 0) {
-        result = result.filter(movie => movie.vote_average >= minRating);
-      }
-      setDisplayMovies(result);
-    } else if (query) {
-      // 검색어 입력 시
-      let result = [...(searchMovies || [])];
-      // 평점 필터링
-      if (minRating > 0) {
-        result = result.filter(movie => movie.vote_average >= minRating);
-      }
-      setDisplayMovies(result);
+    if (query) {
+      // 검색어가 있으면 검색 결과 사용 (필터링 없이)
+      setDisplayMovies(searchMovies || []);
     } else {
-      // 기본값: 인기 영화 표시
-      let result = [...(popularMovies || [])];
-      // 평점 필터링
-      if (minRating > 0) {
-        result = result.filter(movie => movie.vote_average >= minRating);
+      // 필터가 적용되었거나 기본값인 경우
+      if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
+        // 필터링된 결과 사용
+        setDisplayMovies(filteredMovies || []);
+      } else {
+        // 기본값: 인기 영화 표시
+        setDisplayMovies(popularMovies || []);
       }
-      setDisplayMovies(result);
     }
-  }, [selectedGenreId, genreMovies, query, searchMovies, minRating, popularMovies]);
+  }, [query, searchMovies, filteredMovies, popularMovies, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+
+  // 개봉년도 옵션 생성 (최근 20년)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 20 }, (_, i) => currentYear - i);
 
   // 초기화 핸들러
   const handleReset = () => {
     setQuery('');
     setSearchParams({});
-    setSelectedGenreId(null);
-    setMinRating(0);
+    // 선택 중인 필터와 적용된 필터 모두 초기화
+    setPendingGenreId(null);
+    setPendingMinRating(0);
+    setPendingSortBy('popularity.desc');
+    setPendingYear('');
+    setAppliedGenreId(null);
+    setAppliedMinRating(0);
+    setAppliedSortBy('popularity.desc');
+    setAppliedYear('');
+    setShowFilters(false);
   };
 
-  const loading = searchLoading || genreLoading || (popularLoading && !query && !selectedGenreId);
-  const error = searchError || genreError || popularError;
+  // 필터가 적용되었는지 확인
+  const hasActiveFilters = appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear;
+
+  const loading = query ? searchLoading : (hasActiveFilters ? filteredLoading : popularLoading);
+  const error = query ? searchError : (hasActiveFilters ? filteredError : popularError);
 
   return (
     <div className="search-page">
@@ -113,21 +286,67 @@ const Search = () => {
       <main className="search-content">
         <div className="search-header">
           <h1>찾아보기</h1>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="영화 제목을 입력하세요..."
-              value={query}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
+          
+          <div className="search-bar-wrapper">
+            <div className="search-bar" ref={searchBarRef}>
+              <FontAwesomeIcon icon={faSearch} className="search-icon" />
+              <input
+                type="text"
+                placeholder="영화 제목을 입력하세요..."
+                value={query}
+                onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
+                onBlur={handleSearchBlur}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch(query);
+                  }
+                }}
+                className="search-input"
+              />
+            </div>
+            
+            {showSearchHistory && searchHistory.length > 0 && (
+              <div className="search-history-dropdown">
+                <div className="search-history-header">
+                  <span>최근 검색어</span>
+                  <button 
+                    className="clear-history-btn"
+                    onClick={handleClearHistory}
+                    title="전체 삭제"
+                  >
+                    전체 삭제
+                  </button>
+                </div>
+                <ul className="search-history-list">
+                  {searchHistory.map((historyItem, index) => (
+                    <li 
+                      key={index}
+                      className="search-history-item"
+                      onClick={() => handleSearch(historyItem)}
+                    >
+                      <FontAwesomeIcon icon={faClock} className="history-icon" />
+                      <span className="history-text">{historyItem}</span>
+                      <button
+                        className="remove-history-btn"
+                        onClick={(e) => handleRemoveHistoryItem(e, historyItem)}
+                        title="삭제"
+                      >
+                        <FontAwesomeIcon icon={faXmark} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="genre-categories">
             {GENRE_CATEGORIES.map(genre => (
               <button
                 key={genre.id}
-                className={`genre-category-btn ${selectedGenreId === genre.id ? 'active' : ''}`}
+                className={`genre-category-btn ${appliedGenreId === genre.id ? 'active' : ''}`}
                 onClick={() => handleGenreClick(genre.id)}
               >
                 <FontAwesomeIcon icon={genre.icon} />
@@ -136,48 +355,134 @@ const Search = () => {
             ))}
           </div>
 
-          <div className="filters">
-            <select 
-              value={minRating} 
-              onChange={(e) => setMinRating(Number(e.target.value))}
-              className="filter-select"
+          <div className="filters-section">
+            <button 
+              className={`filter-toggle-btn ${showFilters ? 'active' : ''} ${hasActiveFilters ? 'has-filters' : ''}`}
+              onClick={() => setShowFilters(!showFilters)}
             >
-              <option value="0">모든 평점</option>
-              <option value="5">5점 이상</option>
-              <option value="6">6점 이상</option>
-              <option value="7">7점 이상</option>
-              <option value="8">8점 이상</option>
-              <option value="9">9점 이상</option>
-            </select>
-
-            <button onClick={handleReset} className="reset-btn">
-              초기화
+              <FontAwesomeIcon icon={faFilter} />
+              <span>필터</span>
+              {hasActiveFilters && <span className="filter-count">●</span>}
             </button>
+
+            {showFilters && (
+              <div className="filters-panel">
+                <div className="filters-header">
+                  <h3>필터 옵션</h3>
+                  <button className="close-filters-btn" onClick={() => setShowFilters(false)}>
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+
+                <div className="filters-content">
+                  <div className="filter-group">
+                    <label>장르</label>
+                    <select 
+                      value={pendingGenreId || ''} 
+                      onChange={(e) => setPendingGenreId(e.target.value ? Number(e.target.value) : null)}
+                      className="filter-select"
+                    >
+                      <option value="">모든 장르</option>
+                      {genres.map(genre => (
+                        <option key={genre.id} value={genre.id}>{genre.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>평점</label>
+                    <select 
+                      value={pendingMinRating} 
+                      onChange={(e) => setPendingMinRating(Number(e.target.value))}
+                      className="filter-select"
+                    >
+                      <option value="0">모든 평점</option>
+                      <option value="5">5점 이상</option>
+                      <option value="6">6점 이상</option>
+                      <option value="7">7점 이상</option>
+                      <option value="8">8점 이상</option>
+                      <option value="9">9점 이상</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>정렬</label>
+                    <select 
+                      value={pendingSortBy} 
+                      onChange={(e) => setPendingSortBy(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="popularity.desc">인기순</option>
+                      <option value="vote_average.desc">평점순</option>
+                      <option value="release_date.desc">최신순</option>
+                      <option value="release_date.asc">오래된순</option>
+                      <option value="title.asc">제목순 (A-Z)</option>
+                      <option value="title.desc">제목순 (Z-A)</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>개봉년도</label>
+                    <select 
+                      value={pendingYear} 
+                      onChange={(e) => setPendingYear(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="">모든 연도</option>
+                      {years.map(y => (
+                        <option key={y} value={y}>{y}년</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="filters-footer">
+                  <button onClick={handleFilterSearch} className="reset-btn">
+                    <FontAwesomeIcon icon={faSearch} />
+                    <span>검색</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {hasActiveFilters && !showFilters && (
+              <button onClick={handleReset} className="reset-btn-inline">
+                <FontAwesomeIcon icon={faTimes} />
+                <span>초기화</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {loading && <div className="loading-message">검색 중...</div>}
         {error && <div className="error-message">{error}</div>}
 
-        {!loading && !error && (
-          <div className="search-results">
-            {displayMovies.length > 0 ? (
+        <div className="search-results">
+          {loading ? (
+            <div className="loading-container">
+              <FontAwesomeIcon icon={faSpinner} className="loading-spinner" spin />
+              <p className="loading-text">영화를 불러오는 중...</p>
+            </div>
+          ) : displayMovies.length > 0 ? (
+            <>
+              <div className="results-header">
+                <p className="results-count">{displayMovies.length}개의 결과</p>
+              </div>
               <div className="movie-grid">
                 {displayMovies.map(movie => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
-            ) : (
-              <div className="no-results">
-                {selectedGenreId 
-                  ? '해당 장르의 영화가 없습니다.' 
-                  : query 
-                  ? '검색 결과가 없습니다.' 
-                  : '장르를 선택하거나 검색어를 입력해주세요.'}
-              </div>
-            )}
-          </div>
-        )}
+            </>
+          ) : (
+            <div className="no-results">
+              {appliedGenreId 
+                ? '해당 장르의 영화가 없습니다.' 
+                : query 
+                ? '검색 결과가 없습니다.' 
+                : '장르를 선택하거나 검색어를 입력해주세요.'}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
