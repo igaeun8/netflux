@@ -1,7 +1,6 @@
 # [초급프로젝트] 과제 2) GPT와 함께 Front-End Demo Site 개발
 
 React.js를 활용한 Netflix 스타일의 영화 스트리밍 플랫폼 클론 프로젝트입니다. TMDB API를 사용하여 실시간 영화 정보를 제공하고, Local Storage를 활용한 사용자 데이터 관리 및 반응형 웹 디자인을 구현합니다.
-<img width="1440" height="840" alt="image" src="https://github.com/user-attachments/assets/c03a411b-6742-403e-be07-1b27cdcb410f" />
 
 
 🌐 **라이브 데모**: [https://igaeun8.github.io/netflux](https://igaeun8.github.io/netflux)
