@@ -66,7 +66,9 @@ const AnimatedRoutes = () => {
 };
 
 function App() {
-  // GitHub Pages를 위한 basename 설정 (로컬에서는 빈 문자열)
+  // GitHub Pages를 위한 basename 설정
+  // package.json의 homepage가 설정되어 있으면 빌드 시 PUBLIC_URL이 자동 설정됨
+  // 빌드 시: /netflux, 로컬 개발: 빈 문자열 (빈 문자열이면 undefined가 될 수 있으므로 명시)
   const basename = process.env.PUBLIC_URL || '';
   
   return (
