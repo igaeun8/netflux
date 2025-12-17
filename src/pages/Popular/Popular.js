@@ -18,10 +18,10 @@ const Popular = () => {
   // 무한 스크롤용 observer
   const observer = useRef();
   
-  // 초기 데이터 로드
+  // 초기 데이터 로드 및 뷰 모드 변경 시 재로드
   useEffect(() => {
     loadMovies(1, true);
-  }, []);
+  }, [viewMode]);
 
   // 스크롤 이벤트 (Top 버튼 표시)
   useEffect(() => {
@@ -35,14 +35,38 @@ const Popular = () => {
   const loadMovies = async (pageNum, isReset = false) => {
     try {
       setLoading(true);
-      const response = await movieApi.getPopular(pageNum);
-      const newMovies = response.data.results;
-      setTotalPages(response.data.total_pages);
       
-      if (isReset) {
-        setAllMovies(newMovies);
+      // 테이블 뷰에서는 24개를 표시하기 위해 2페이지를 가져옴
+      if (viewMode === 'table') {
+        const [response1, response2] = await Promise.all([
+          movieApi.getPopular(pageNum),
+          movieApi.getPopular(pageNum + 1).catch(() => ({ data: { results: [] } }))
+        ]);
+        
+        const movies1 = response1.data.results || [];
+        const movies2 = response2.data.results || [];
+        const combinedMovies = [...movies1, ...movies2].slice(0, 24);
+        
+        // 총 페이지 수는 실제 API 페이지 수 계산 (24개씩 보여주므로)
+        const totalApiPages = response1.data.total_pages || 0;
+        setTotalPages(Math.ceil((totalApiPages * 20) / 24));
+        
+        if (isReset) {
+          setAllMovies(combinedMovies);
+        } else {
+          setAllMovies(prev => [...prev, ...combinedMovies]);
+        }
       } else {
-        setAllMovies(prev => [...prev, ...newMovies]);
+        // 인피니티 뷰는 기존대로
+        const response = await movieApi.getPopular(pageNum);
+        const newMovies = response.data.results;
+        setTotalPages(response.data.total_pages);
+        
+        if (isReset) {
+          setAllMovies(newMovies);
+        } else {
+          setAllMovies(prev => [...prev, ...newMovies]);
+        }
       }
     } catch (error) {
       console.error('영화 데이터를 불러오는데 실패했습니다:', error);
@@ -69,13 +93,12 @@ const Popular = () => {
     });
     
     if (node) observer.current.observe(node);
-  }, [loading, viewMode, page, totalPages]);
+  }, [loading, viewMode, page, totalPages, loadMovies]);
 
   // 뷰 모드 변경 핸들러
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
     setPage(1);
-    loadMovies(1, true);
     window.scrollTo(0, 0);
   };
 

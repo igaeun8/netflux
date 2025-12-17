@@ -239,32 +239,89 @@ const Search = () => {
       setLoading(true);
       setError(null);
       
-      let response;
-      
-    if (query) {
-        // 검색어가 있으면 검색 API 사용
-        response = await movieApi.searchMovies(query, pageNum);
-      } else if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
-        // 필터가 적용된 경우
-        const params = { page: pageNum };
-        if (appliedGenreId) params.with_genres = appliedGenreId;
-        if (appliedMinRating > 0) params['vote_average.gte'] = appliedMinRating;
-        params.sort_by = appliedSortBy;
-        if (appliedYear) params.primary_release_year = parseInt(appliedYear);
+      // 테이블 뷰에서는 24개를 표시하기 위해 2페이지를 가져옴
+      if (viewMode === 'table') {
+        let response1, response2;
         
-        response = await movieApi.discoverMovies(params);
-    } else {
-        // 기본값: 인기 영화
-        response = await movieApi.getPopular(pageNum);
-      }
-      
-      const newMovies = response.data.results || [];
-      setTotalPages(response.data.total_pages || 0);
-      
-      if (isReset) {
-        setAllMovies(newMovies);
+        if (query) {
+          // 검색어가 있으면 검색 API 사용
+          [response1, response2] = await Promise.all([
+            movieApi.searchMovies(query, pageNum),
+            movieApi.searchMovies(query, pageNum + 1).catch(() => ({ data: { results: [] } }))
+          ]);
+        } else if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
+          // 필터가 적용된 경우
+          const params = { page: pageNum };
+          const params2 = { page: pageNum + 1 };
+          if (appliedGenreId) {
+            params.with_genres = appliedGenreId;
+            params2.with_genres = appliedGenreId;
+          }
+          if (appliedMinRating > 0) {
+            params['vote_average.gte'] = appliedMinRating;
+            params2['vote_average.gte'] = appliedMinRating;
+          }
+          params.sort_by = appliedSortBy;
+          params2.sort_by = appliedSortBy;
+          if (appliedYear) {
+            params.primary_release_year = parseInt(appliedYear);
+            params2.primary_release_year = parseInt(appliedYear);
+          }
+          
+          [response1, response2] = await Promise.all([
+            movieApi.discoverMovies(params),
+            movieApi.discoverMovies(params2).catch(() => ({ data: { results: [] } }))
+          ]);
+        } else {
+          // 기본값: 인기 영화
+          [response1, response2] = await Promise.all([
+            movieApi.getPopular(pageNum),
+            movieApi.getPopular(pageNum + 1).catch(() => ({ data: { results: [] } }))
+          ]);
+        }
+        
+        const movies1 = response1.data.results || [];
+        const movies2 = response2.data.results || [];
+        const combinedMovies = [...movies1, ...movies2].slice(0, 24);
+        
+        // 총 페이지 수는 실제 API 페이지 수 계산 (24개씩 보여주므로)
+        const totalApiPages = response1.data.total_pages || 0;
+        setTotalPages(Math.ceil((totalApiPages * 20) / 24));
+        
+        if (isReset) {
+          setAllMovies(combinedMovies);
+        } else {
+          setAllMovies(prev => [...prev, ...combinedMovies]);
+        }
       } else {
-        setAllMovies(prev => [...prev, ...newMovies]);
+        // 인피니티 뷰는 기존대로
+        let response;
+        
+        if (query) {
+          // 검색어가 있으면 검색 API 사용
+          response = await movieApi.searchMovies(query, pageNum);
+        } else if (appliedGenreId || appliedMinRating > 0 || appliedSortBy !== 'popularity.desc' || appliedYear) {
+          // 필터가 적용된 경우
+          const params = { page: pageNum };
+          if (appliedGenreId) params.with_genres = appliedGenreId;
+          if (appliedMinRating > 0) params['vote_average.gte'] = appliedMinRating;
+          params.sort_by = appliedSortBy;
+          if (appliedYear) params.primary_release_year = parseInt(appliedYear);
+          
+          response = await movieApi.discoverMovies(params);
+        } else {
+          // 기본값: 인기 영화
+          response = await movieApi.getPopular(pageNum);
+        }
+        
+        const newMovies = response.data.results || [];
+        setTotalPages(response.data.total_pages || 0);
+        
+        if (isReset) {
+          setAllMovies(newMovies);
+        } else {
+          setAllMovies(prev => [...prev, ...newMovies]);
+        }
       }
     } catch (err) {
       setError(err.message || '영화를 불러오는데 실패했습니다.');
@@ -272,13 +329,13 @@ const Search = () => {
     } finally {
       setLoading(false);
     }
-  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear]);
+  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear, viewMode]);
 
-  // 필터나 검색어 변경 시 영화 다시 로드
+  // 필터나 검색어, 뷰 모드 변경 시 영화 다시 로드
   useEffect(() => {
     setPage(1);
     loadMovies(1, true);
-  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear, loadMovies]);
+  }, [query, appliedGenreId, appliedMinRating, appliedSortBy, appliedYear, viewMode, loadMovies]);
 
   // 스크롤 이벤트 (Top 버튼 표시)
   useEffect(() => {
@@ -353,8 +410,6 @@ const Search = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // 테이블 뷰에서는 allMovies가 현재 페이지의 영화만 포함하므로 그대로 사용
 
   return (
     <div className="search-page">

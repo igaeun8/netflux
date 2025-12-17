@@ -12,7 +12,7 @@ const Wishlist = () => {
   const [viewMode, setViewMode] = useState('infinite');
   const [currentPage, setCurrentPage] = useState(1);
   const [showTopBtn, setShowTopBtn] = useState(false);
-  const itemsPerPage = 20;
+  const itemsPerPage = 24;
   
   useEffect(() => {
     const loadWishlist = () => {
