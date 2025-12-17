@@ -1,8 +1,8 @@
 {
-  "name": "netflix_clone",
+  "name": "Netflux",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://igaeun8.github.io/netflix_clone2",
+  "homepage": "https://igaeun8.github.io/Netflux2",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",

@@ -56,7 +56,7 @@ src/
 1. 저장소 클론
 ```bash
 git clone <repository-url>
-cd netflix_clone
+cd Netflux
 ```
 
 2. 의존성 설치

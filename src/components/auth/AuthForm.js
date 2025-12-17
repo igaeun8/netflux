@@ -188,7 +188,7 @@ const AuthForm = () => {
         {/* 로그인 폼 */}
         <form className={`auth-form login-form ${isLoginMode ? 'active' : ''}`} onSubmit={handleLogin}>
           <div className="auth-logo">
-            <span className="logo-text">NETFLUX</span>
+            <span className="logo-text">Netflux</span>
           </div>
           <h2>로그인</h2>
           
@@ -242,7 +242,7 @@ const AuthForm = () => {
         {/* 회원가입 폼 */}
         <form className={`auth-form register-form ${!isLoginMode ? 'active' : ''}`} onSubmit={handleRegister}>
           <div className="auth-logo">
-            <span className="logo-text">NETFLUX</span>
+            <span className="logo-text">Netflux</span>
           </div>
           <h2>회원가입</h2>
           

@@ -88,7 +88,7 @@ const Header = () => {
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="header-content">
         <Link to={ROUTES.HOME} className="logo" onClick={handleNavClick}>
-          <img src={logo} alt="NETFLUX" className="logo-img" />
+          <img src={logo} alt="Netflux" className="logo-img" />
         </Link>
         
         {/* 데스크톱 네비게이션 */}
