@@ -361,18 +361,43 @@ const Search = () => {
       <Header />
       <main className="search-content">
         <div className="search-header">
-          <h1>찾아보기</h1>
+          <div className="header-top-section">
+            <div className="header-title-section">
+              <h1>찾아보기</h1>
+              <p className="page-description">취향에 맞는 콘텐츠를 직접 찾아보세요</p>
+            </div>
+            
+            {/* 뷰 모드 토글 버튼 */}
+            {allMovies.length > 0 && (
+              <div className="view-toggle">
+                <button 
+                  className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => handleViewModeChange('table')}
+                  title="테이블 뷰"
+                >
+                  <FontAwesomeIcon icon={faList} /> Table
+                </button>
+                <button 
+                  className={`toggle-btn ${viewMode === 'infinite' ? 'active' : ''}`}
+                  onClick={() => handleViewModeChange('infinite')}
+                  title="무한 스크롤"
+                >
+                  <FontAwesomeIcon icon={faStream} /> Infinite
+                </button>
+              </div>
+            )}
+          </div>
           
           <div className="search-bar-wrapper">
             <div className="search-bar" ref={searchBarRef}>
               <FontAwesomeIcon icon={faSearch} className="search-icon" />
-              <input
-                type="text"
+            <input
+              type="text"
                 id="movie-search-input"
                 name="movie-search"
-                placeholder="영화 제목을 입력하세요..."
-                value={query}
-                onChange={handleSearchChange}
+              placeholder="영화 제목을 입력하세요..."
+              value={query}
+              onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onBlur={handleSearchBlur}
                 onKeyDown={(e) => {
@@ -381,11 +406,11 @@ const Search = () => {
                     handleSearch(query);
                   }
                 }}
-                className="search-input"
+              className="search-input"
                 autoComplete="off"
-              />
-            </div>
-            
+            />
+          </div>
+
             {showSearchHistory && searchHistory.length > 0 && (
               <div className="search-history-dropdown">
                 <div className="search-history-header">
@@ -456,32 +481,32 @@ const Search = () => {
                 <div className="filters-content">
                   <div className="filter-group">
                     <label>장르</label>
-                    <select 
+            <select 
                       value={pendingGenreId || ''} 
                       onChange={(e) => setPendingGenreId(e.target.value ? Number(e.target.value) : null)}
-                      className="filter-select"
-                    >
-                      <option value="">모든 장르</option>
-                      {genres.map(genre => (
-                        <option key={genre.id} value={genre.id}>{genre.name}</option>
-                      ))}
-                    </select>
+              className="filter-select"
+            >
+              <option value="">모든 장르</option>
+              {genres.map(genre => (
+                <option key={genre.id} value={genre.id}>{genre.name}</option>
+              ))}
+            </select>
                   </div>
 
                   <div className="filter-group">
                     <label>평점</label>
-                    <select 
+            <select 
                       value={pendingMinRating} 
                       onChange={(e) => setPendingMinRating(Number(e.target.value))}
-                      className="filter-select"
-                    >
-                      <option value="0">모든 평점</option>
-                      <option value="5">5점 이상</option>
-                      <option value="6">6점 이상</option>
-                      <option value="7">7점 이상</option>
-                      <option value="8">8점 이상</option>
-                      <option value="9">9점 이상</option>
-                    </select>
+              className="filter-select"
+            >
+              <option value="0">모든 평점</option>
+              <option value="5">5점 이상</option>
+              <option value="6">6점 이상</option>
+              <option value="7">7점 이상</option>
+              <option value="8">8점 이상</option>
+              <option value="9">9점 이상</option>
+            </select>
                   </div>
 
                   <div className="filter-group">
@@ -528,36 +553,14 @@ const Search = () => {
               <button onClick={handleReset} className="reset-btn-inline">
                 <FontAwesomeIcon icon={faTimes} />
                 <span>초기화</span>
-              </button>
+            </button>
             )}
           </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
-        <div className="search-results">
-          {/* 뷰 모드 토글 버튼 */}
-          {allMovies.length > 0 && (
-            <div className="view-toggle-container">
-              <div className="view-toggle">
-                <button 
-                  className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                  onClick={() => handleViewModeChange('table')}
-                  title="테이블 뷰"
-                >
-                  <FontAwesomeIcon icon={faList} /> Table
-                </button>
-                <button 
-                  className={`toggle-btn ${viewMode === 'infinite' ? 'active' : ''}`}
-                  onClick={() => handleViewModeChange('infinite')}
-                  title="무한 스크롤"
-                >
-                  <FontAwesomeIcon icon={faStream} /> Infinite
-                </button>
-              </div>
-            </div>
-          )}
-
+          <div className="search-results">
           {loading && page === 1 ? (
             <div className="skeleton-grid">
               {[...Array(12)].map((_, index) => (
@@ -614,16 +617,16 @@ const Search = () => {
                 </div>
               )}
             </>
-          ) : (
-            <div className="no-results">
+            ) : (
+              <div className="no-results">
               {appliedGenreId 
                 ? '해당 장르의 영화가 없습니다.' 
                 : query 
                 ? '검색 결과가 없습니다.' 
                 : '장르를 선택하거나 검색어를 입력해주세요.'}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
 
         {/* Top 버튼 */}
         {showTopBtn && (

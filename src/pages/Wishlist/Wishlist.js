@@ -65,7 +65,10 @@ const Wishlist = () => {
       <Header />
       <main className="wishlist-content">
         <div className="wishlist-header">
-          <h1>내가 찜한 리스트</h1>
+          <div className="header-title-section">
+            <h1>내가 찜한 리스트</h1>
+            <p className="page-description">다시 보고 싶은 콘텐츠를 한곳에</p>
+          </div>
           
           {allMovies.length > 0 && (
             <div className="view-toggle">

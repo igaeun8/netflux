@@ -1,8 +1,8 @@
 // 홈 페이지
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faInfoCircle, faHeart as faHeartSolid, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faInfoCircle, faHeart as faHeartSolid, faStar, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Header from '../../components/common/Header';
 import MovieList from '../../components/movie/MovieList';
@@ -10,6 +10,7 @@ import {
   usePopularMovies, 
   useNowPlayingMovies, 
   useTopRatedMovies,
+  useUpcomingMovies,
   useGenreMovies,
   useGenres
 } from '../../hooks/useMovies';
@@ -26,6 +27,7 @@ const Home = () => {
   const popular = usePopularMovies();
   const nowPlaying = useNowPlayingMovies();
   const topRated = useTopRatedMovies();
+  const upcoming = useUpcomingMovies();
 
   
   // 장르별 인기 영화
@@ -132,6 +134,49 @@ const Home = () => {
     }
   };
 
+  // 카테고리 섹션으로 스크롤
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // 각 카테고리별 대표 영화 가져오기 (중복 방지)
+  const featuredMovies = useMemo(() => {
+    const usedIds = new Set();
+    const getUniqueMovie = (movies, startIndex = 0) => {
+      if (!movies || movies.length === 0) return null;
+      // startIndex부터 시작해서 사용되지 않은 영화 찾기
+      for (let i = startIndex; i < Math.min(startIndex + 10, movies.length); i++) {
+        const movie = movies[i];
+        if (movie && movie.backdrop_path && !usedIds.has(movie.id)) {
+          usedIds.add(movie.id);
+          return movie;
+        }
+      }
+      // 모두 사용된 경우 첫 번째 영화 반환
+      return movies[0] || null;
+    };
+
+    const popularMovie = getUniqueMovie(popular.movies, 0);
+    const nowPlayingMovie = getUniqueMovie(nowPlaying.movies, 0);
+    const upcomingMovie = getUniqueMovie(upcoming.movies, 0);
+    const topRatedMovie = getUniqueMovie(topRated.movies, 0);
+
+    return {
+      popular: popularMovie,
+      nowPlaying: nowPlayingMovie,
+      upcoming: upcomingMovie,
+      topRated: topRatedMovie
+    };
+  }, [popular.movies, nowPlaying.movies, upcoming.movies, topRated.movies]);
+
+  const featuredPopular = featuredMovies.popular;
+  const featuredNowPlaying = featuredMovies.nowPlaying;
+  const featuredUpcoming = featuredMovies.upcoming;
+  const featuredTopRated = featuredMovies.topRated;
+
   return (
     <div className="home-page">
       <Header />
@@ -224,27 +269,102 @@ const Home = () => {
         </div>
       )}
 
+      {/* 카테고리 네비게이션 카드 */}
+      <section className="category-navigation">
+        <div 
+          className="category-card" 
+          onClick={() => scrollToSection('popular-section')}
+          style={{
+            backgroundImage: featuredPopular?.backdrop_path 
+              ? `linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%), url(${getBackdropUrl(featuredPopular.backdrop_path, 'w780')})`
+              : undefined
+          }}
+        >
+          <div className="card-overlay"></div>
+          <h3>지금 뜨는 영화</h3>
+          <p>실시간 인기 순위 기반 추천</p>
+          <FontAwesomeIcon icon={faArrowRight} className="card-arrow" />
+        </div>
+        <div 
+          className="category-card" 
+          onClick={() => scrollToSection('now-playing-section')}
+          style={{
+            backgroundImage: featuredNowPlaying?.backdrop_path 
+              ? `linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%), url(${getBackdropUrl(featuredNowPlaying.backdrop_path, 'w780')})`
+              : undefined
+          }}
+        >
+          <div className="card-overlay"></div>
+          <h3>극장에서 상영 중</h3>
+          <p>놓치면 아쉬운 상영작</p>
+          <FontAwesomeIcon icon={faArrowRight} className="card-arrow" />
+        </div>
+        <div 
+          className="category-card" 
+          onClick={() => scrollToSection('upcoming-section')}
+          style={{
+            backgroundImage: featuredUpcoming?.backdrop_path 
+              ? `linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%), url(${getBackdropUrl(featuredUpcoming.backdrop_path, 'w780')})`
+              : undefined
+          }}
+        >
+          <div className="card-overlay"></div>
+          <h3>곧 개봉 예정</h3>
+          <p>기대작 미리 만나보기</p>
+          <FontAwesomeIcon icon={faArrowRight} className="card-arrow" />
+        </div>
+        <div 
+          className="category-card" 
+          onClick={() => scrollToSection('top-rated-section')}
+          style={{
+            backgroundImage: featuredTopRated?.backdrop_path 
+              ? `linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%), url(${getBackdropUrl(featuredTopRated.backdrop_path, 'w780')})`
+              : undefined
+          }}
+        >
+          <div className="card-overlay"></div>
+          <h3>믿고 보는 명작</h3>
+          <p>한 번쯤 꼭 봐야 할 영화</p>
+          <FontAwesomeIcon icon={faArrowRight} className="card-arrow" />
+        </div>
+      </section>
+
       <main className="home-content">
-        <MovieList 
-          title="인기 콘텐츠" 
-          movies={popular.movies} 
-          loading={popular.loading} 
-          error={popular.error} 
-        />
+        <div id="popular-section">
+          <MovieList 
+            title="인기 콘텐츠" 
+            movies={popular.movies} 
+            loading={popular.loading} 
+            error={popular.error} 
+          />
+        </div>
         
-        <MovieList 
-          title="현재 상영작" 
-          movies={nowPlaying.movies} 
-          loading={nowPlaying.loading} 
-          error={nowPlaying.error} 
-        />
+        <div id="now-playing-section">
+          <MovieList 
+            title="현재 상영작" 
+            movies={nowPlaying.movies} 
+            loading={nowPlaying.loading} 
+            error={nowPlaying.error} 
+          />
+        </div>
         
-        <MovieList 
-          title="최고 평점" 
-          movies={topRated.movies} 
-          loading={topRated.loading} 
-          error={topRated.error} 
-        />
+        <div id="upcoming-section">
+          <MovieList 
+            title="곧 개봉 예정" 
+            movies={upcoming.movies} 
+            loading={upcoming.loading} 
+            error={upcoming.error} 
+          />
+        </div>
+        
+        <div id="top-rated-section">
+          <MovieList 
+            title="최고 평점" 
+            movies={topRated.movies} 
+            loading={topRated.loading} 
+            error={topRated.error} 
+          />
+        </div>
         
         <MovieList 
           title="로맨스 영화" 

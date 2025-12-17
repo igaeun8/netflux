@@ -98,7 +98,10 @@ const Popular = () => {
       <Header />
       <main className="popular-content">
         <div className="popular-header">
-          <h1>대세 콘텐츠</h1>
+          <div className="header-title-section">
+            <h1>대세 콘텐츠</h1>
+            <p className="page-description">지금 가장 많이 선택받는 콘텐츠</p>
+          </div>
           <div className="view-toggle">
             <button 
               className={`toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
